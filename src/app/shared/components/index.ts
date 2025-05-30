@@ -1,1 +1,1 @@
-export { LogoutButton } from "@/app/shared/components/LogoutButton"
+export { LogoutButton } from "@/app/shared/components/LogoutButton";
