@@ -4,8 +4,8 @@ import { defineApp } from "rwsdk/worker";
 import { Document } from "@/app/document/Document";
 import { setCommonHeaders } from "@/app/document/headers";
 
-import { Home } from "@/app/pages/Home";
-import { Landing } from "@/app/pages/Landing";
+import { Home } from "@/app/pages/home";
+import { Landing } from "@/app/pages/landing";
 import { userRoutes } from "@/app/pages/user/routes";
 import { link } from "@/app/shared/links";
 import type { User } from "@/db/schema/auth-schema";

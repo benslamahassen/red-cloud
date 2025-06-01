@@ -5,7 +5,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/app/shared/components/ui/card";
-import { db } from "@/db/db";
+import { db } from "@/db";
 import { user } from "@/db/schema";
 import type { AppContext } from "@/worker";
 
@@ -14,9 +14,9 @@ const Home = async ({ ctx }: { ctx: AppContext }) => {
 	const { authUrl } = ctx;
 
 	return (
-		<div className="p-8 max-w-4xl mx-auto space-y-6">
-			<div className="flex justify-between items-center">
-				<h1 className="text-3xl font-bold">Home Page</h1>
+		<div className="mx-auto max-w-4xl space-y-6 p-8">
+			<div className="flex items-center justify-between">
+				<h1 className="font-bold text-3xl">Home Page</h1>
 				<LogoutButton authUrl={authUrl} className="button" />
 			</div>
 
@@ -28,8 +28,8 @@ const Home = async ({ ctx }: { ctx: AppContext }) => {
 					</p>
 				</CardHeader>
 				<CardContent>
-					<div className="bg-muted rounded-lg p-4">
-						<pre className="text-sm overflow-auto max-h-96 whitespace-pre-wrap">
+					<div className="rounded-lg bg-muted p-4">
+						<pre className="max-h-96 overflow-auto whitespace-pre-wrap text-sm">
 							{JSON.stringify(allUsers, null, 2)}
 						</pre>
 					</div>

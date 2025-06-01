@@ -1,30 +1,50 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"vcs": {
-		"enabled": false,
-		"clientKind": "git",
-		"useIgnoreFile": false
-	},
-	"files": {
-		"ignoreUnknown": false,
-		"ignore": []
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab"
-	},
 	"organizeImports": {
 		"enabled": true
+	},
+	"formatter": {
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"formatWithErrors": true
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"nursery": {
+				"useSortedClasses": {
+					"level": "warn",
+					"fix": "safe",
+					"options": {
+						"attributes": ["classList"],
+						"functions": ["clsx", "cva", "tw", "cn"]
+					}
+				}
+			}
 		}
 	},
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "double"
+			"quoteStyle": "double",
+			"trailingCommas": "all",
+			"semicolons": "always"
 		}
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": true,
+		"ignore": [
+			"dist/**",
+			"node_modules/**",
+			"public/**",
+			"worker-configuration.d.ts",
+			"src/client/routeTree.gen.ts",
+			"src/server/db/migrations/**"
+		]
 	}
 }

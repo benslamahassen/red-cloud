@@ -101,44 +101,75 @@ export function Login({ ctx }: { ctx: AppContext }) {
 		setResult("");
 	};
 
+	const handleSocialSignIn = (provider: "google" | "github") => {
+		startTransition(() => {
+			authClient.signIn.social({
+				provider,
+				callbackURL: link("/home"),
+			});
+		});
+	};
+
 	return (
-		<div className="p-8 max-w-md mx-auto">
-			<div className="text-center mb-6">
+		<div className="mx-auto max-w-md p-8">
+			<div className="mb-6 text-center">
 				<img src="/images/logoipsum.svg" alt="Logo" className="mx-auto" />
-				<h1 className="text-2xl font-semibold mb-4">Continue with Email</h1>
+				<h1 className="mb-4 font-semibold text-2xl">Continue with Email</h1>
 			</div>
 
 			<Card>
 				<CardContent className="p-6">
 					{!showOtpInput ? (
-						<Form onSubmit={handleSendOtp}>
-							<FormItem>
-								<FormLabel htmlFor="email">Email</FormLabel>
-								<FormControl>
-									<Input
-										id="email"
-										type="email"
-										value={email}
-										onChange={(e) => setEmail(e.target.value)}
-										placeholder="Enter your email"
-										autoComplete="email"
-									/>
-								</FormControl>
-								<FormMessage>{emailError}</FormMessage>
-							</FormItem>
+						<>
+							<Form onSubmit={handleSendOtp}>
+								<FormItem>
+									<FormLabel htmlFor="email">Email</FormLabel>
+									<FormControl>
+										<Input
+											id="email"
+											type="email"
+											value={email}
+											onChange={(e) => setEmail(e.target.value)}
+											placeholder="Enter your email"
+											autoComplete="email"
+										/>
+									</FormControl>
+									<FormMessage>{emailError}</FormMessage>
+								</FormItem>
 
-							{result && (
-								<FormMessage
-									variant={result.includes("Error") ? "destructive" : "success"}
+								{result && (
+									<FormMessage
+										variant={
+											result.includes("Error") ? "destructive" : "success"
+										}
+									>
+										{result}
+									</FormMessage>
+								)}
+
+								<Button type="submit" disabled={isPending} className="w-full">
+									{isPending ? "Sending Code..." : "Continue with Email"}
+								</Button>
+							</Form>
+							<div className="mt-4 space-y-2">
+								<Button
+									variant="outline"
+									onClick={() => handleSocialSignIn("google")}
+									disabled={isPending}
+									className="w-full"
 								>
-									{result}
-								</FormMessage>
-							)}
-
-							<Button type="submit" disabled={isPending} className="w-full">
-								{isPending ? "Sending Code..." : "Continue with Email"}
-							</Button>
-						</Form>
+									Continue with Google
+								</Button>
+								<Button
+									variant="outline"
+									onClick={() => handleSocialSignIn("github")}
+									disabled={isPending}
+									className="w-full"
+								>
+									Continue with GitHub
+								</Button>
+							</div>
+						</>
 					) : (
 						<Form onSubmit={handleVerifyOtp}>
 							<FormItem>
@@ -183,7 +214,7 @@ export function Login({ ctx }: { ctx: AppContext }) {
 				</CardContent>
 			</Card>
 
-			<p className="mt-4 text-sm text-gray-600 text-center">
+			<p className="mt-4 text-center text-gray-600 text-sm">
 				<a href="/" className="text-blue-600 hover:underline">
 					Back to Landing Page
 				</a>

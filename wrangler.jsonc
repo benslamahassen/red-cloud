@@ -1,23 +1,18 @@
-// Initial temporary wrangler.json
-// Running `bun infra:up will update and overwrite this file
 {
-  "name": "fullstack-cf-example-site",
+  "name": "rw-cloud-site",
   "main": "src/worker.tsx",
   "compatibility_date": "2025-04-20",
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": "dist/client", "binding": "ASSETS" },
   "kv_namespaces": [
-    {
-      "binding": "SESSIONS_KV",
-      "id": "__"
-    }
+    { "binding": "SESSIONS_KV", "id": "edf879a4dad74bdfa8d63be33f298b98" }
   ],
   "d1_databases": [
     {
       "binding": "DB",
-      "migrations_dir": "src/db/migrations",
-      "database_name": "__",
-      "database_id": "__"
+      "database_id": "7ac45e28-4505-4c83-a9c0-5a980372226a",
+      "database_name": "rw-cloud-site-users-db",
+      "migrations_dir": "src/db/migrations"
     }
   ]
 }

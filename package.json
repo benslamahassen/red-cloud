@@ -1,25 +1,30 @@
 {
-	"name": "fullstack-cf-example",
+	"name": "rw-cloud",
 	"version": "1.0.0",
+	"description": "Better-Cloud rebuilt using RedwoodSDK and Alchemy IaC",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
 		"clean": "rm -rf ./node_modules/.vite",
-		"dev": "NODE_ENV=${NODE_ENV:-development} vite dev",
-		"dev:init": "rw-scripts dev-init",
+		"dev": "NODE_ENV=development vite dev",
+		"dev:init": "bun db:touch && bun db:generate && bun db:migrate",
 		"check": "biome check --write src --verbose",
 		"check:unsafe": "biome check --write src --unsafe --verbose",
-		"generate": "rw-scripts ensure-env && bun migrate:new --name=init",
 		"infra:destroy": "bun alchemy.run.ts destroy",
 		"infra:up": "bun alchemy.run.ts",
-		"migrate:dev": "wrangler d1 migrations apply DB --local",
-		"migrate:new": "drizzle-kit generate --config=drizzle.config.ts",
 		"preview": "bun build && bun vite preview",
-		"types": "tsc"
+		"typecheck": "tsc --noEmit",
+		"db:touch": "wrangler d1 execute DB --local --command='SELECT 1'",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "wrangler d1 migrations apply DB --local",
+		"db:migrate:prod": "wrangler d1 migrations apply DB --remote",
+		"db:studio": "drizzle-kit studio --config drizzle.config.ts",
+		"db:studio:prod": "NODE_ENV=production drizzle-kit studio"
 	},
 	"dependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@libsql/client": "^0.15.8",
 		"@radix-ui/react-label": "^2.1.7",
 		"@radix-ui/react-slot": "^1.2.3",
 		"@tailwindcss/vite": "^4.1.7",
@@ -27,6 +32,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.43.1",
+		"resend": "^4.5.1",
 		"rwsdk": "^0.0.85",
 		"tailwind-merge": "^3.3.0",
 		"tailwindcss": "^4.1.7"
@@ -45,5 +51,6 @@
 		"vite": "^6.3.5",
 		"wrangler": "^4.16.1"
 	},
-	"packageManager": "bun@1.2.12"
+	"packageManager": "bun@1.2.12",
+	"trustedDependencies": ["@biomejs/biome", "@swc/core", "@tailwindcss/oxide"]
 }

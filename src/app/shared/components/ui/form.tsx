@@ -26,7 +26,7 @@ function FormLabel({
 	return (
 		<Label
 			className={cn(
-				"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+				"font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
 				className,
 			)}
 			{...props}
@@ -45,7 +45,7 @@ function FormControl({
 // Simple form description
 function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 	return (
-		<p className={cn("text-sm text-muted-foreground", className)} {...props} />
+		<p className={cn("text-muted-foreground text-sm", className)} {...props} />
 	);
 }
 
@@ -73,7 +73,7 @@ function FormMessage({
 	return (
 		<p
 			className={cn(
-				"text-sm p-3 rounded-md border",
+				"rounded-md border p-3 text-sm",
 				variants[variant],
 				className,
 			)}

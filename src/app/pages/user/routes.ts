@@ -1,4 +1,4 @@
-import { Login } from "@/app/pages/user/Login";
+import { Login } from "@/app/pages/user/login";
 import { link } from "@/app/shared/links";
 import type { AppContext } from "@/worker";
 import { route } from "rwsdk/router";
