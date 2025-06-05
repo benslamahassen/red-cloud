@@ -9,27 +9,27 @@ import { link } from "@/app/shared/links";
 
 export function Landing() {
 	return (
-		<div className="mx-auto max-w-2xl p-8">
-			<Card>
-				<CardHeader className="text-center">
-					<CardTitle className="text-3xl">Redwood-Cloud</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-6">
-					<div className="text-center">
-						<Button asChild size="lg">
-							<a href={link("/home")}>Go to Home Page</a>
-						</Button>
-					</div>
-
-					<div className="rounded-lg bg-muted p-4">
-						<p className="text-muted-foreground text-sm">
-							<strong>Note:</strong> The home page is protected and requires
-							authentication. You will be redirected to login if you're not
-							signed in.
-						</p>
-					</div>
-				</CardContent>
-			</Card>
+		<div className="flex min-h-screen items-center justify-center bg-background">
+			<div className="text-center">
+				<h1 className="font-bold text-6xl">Redwood Cloud</h1>
+				<p className="mt-4 text-muted-foreground text-xl">
+					A modern full-stack application built with RedwoodSDK
+				</p>
+				<div className="mt-8 space-x-4">
+					<a
+						href="/sign-in"
+						className="inline-block rounded-md bg-primary px-6 py-3 text-primary-foreground hover:bg-primary/90"
+					>
+						Get Started
+					</a>
+					<a
+						href="/guestbook"
+						className="inline-block rounded-md border px-6 py-3 hover:bg-accent"
+					>
+						View Guestbook
+					</a>
+				</div>
+			</div>
 		</div>
 	);
 }

@@ -17,7 +17,7 @@ export function LogoutButton({
 			authClient.signOut({
 				fetchOptions: {
 					onSuccess: () => {
-						window.location.href = link("/user/login");
+						window.location.href = link("/sign-in");
 					},
 				},
 			});

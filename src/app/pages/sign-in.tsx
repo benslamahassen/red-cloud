@@ -1,5 +1,6 @@
 "use client";
 
+import { AppShell } from "@/app/shared/components/app-shell";
 import { Button } from "@/app/shared/components/ui/button";
 import { Card, CardContent } from "@/app/shared/components/ui/card";
 import {
@@ -15,7 +16,7 @@ import { setupAuthClient } from "@/lib/auth-client";
 import type { AppContext } from "@/worker";
 import { useState, useTransition } from "react";
 
-export function Login({ ctx }: { ctx: AppContext }) {
+export function SignIn({ ctx }: { ctx: AppContext }) {
 	const { authUrl } = ctx;
 	const [email, setEmail] = useState("");
 	const [otp, setOtp] = useState("");
@@ -83,7 +84,7 @@ export function Login({ ctx }: { ctx: AppContext }) {
 				{
 					onRequest: () => setResult("Verifying code..."),
 					onSuccess: () => {
-						window.location.href = link("/home");
+						window.location.href = link("/");
 					},
 					onError: (ctx) => {
 						console.log("error verifying OTP", ctx.error);
@@ -105,36 +106,90 @@ export function Login({ ctx }: { ctx: AppContext }) {
 		startTransition(() => {
 			authClient.signIn.social({
 				provider,
-				callbackURL: link("/home"),
+				callbackURL: link("/"),
 			});
 		});
 	};
 
 	return (
-		<div className="mx-auto max-w-md p-8">
-			<div className="mb-6 text-center">
-				<img src="/images/logoipsum.svg" alt="Logo" className="mx-auto" />
-				<h1 className="mb-4 font-semibold text-2xl">Continue with Email</h1>
-			</div>
+		<AppShell ctx={ctx}>
+			<div className="mx-auto max-w-md py-8">
+				<div className="mb-6 text-center">
+					<h1 className="mb-4 font-semibold text-2xl">Sign In</h1>
+					<p className="text-muted-foreground">
+						Welcome back! Please sign in to your account.
+					</p>
+				</div>
 
-			<Card>
-				<CardContent className="p-6">
-					{!showOtpInput ? (
-						<>
-							<Form onSubmit={handleSendOtp}>
+				<Card>
+					<CardContent className="p-6">
+						{!showOtpInput ? (
+							<>
+								<Form onSubmit={handleSendOtp}>
+									<FormItem>
+										<FormLabel htmlFor="email">Email</FormLabel>
+										<FormControl>
+											<Input
+												id="email"
+												type="email"
+												value={email}
+												onChange={(e) => setEmail(e.target.value)}
+												placeholder="Enter your email"
+												autoComplete="email"
+											/>
+										</FormControl>
+										<FormMessage>{emailError}</FormMessage>
+									</FormItem>
+
+									{result && (
+										<FormMessage
+											variant={
+												result.includes("Error") ? "destructive" : "success"
+											}
+										>
+											{result}
+										</FormMessage>
+									)}
+
+									<Button type="submit" disabled={isPending} className="w-full">
+										{isPending ? "Sending Code..." : "Continue with Email"}
+									</Button>
+								</Form>
+								<div className="mt-4 space-y-2">
+									<Button
+										variant="outline"
+										onClick={() => handleSocialSignIn("google")}
+										disabled={isPending}
+										className="w-full"
+									>
+										Continue with Google
+									</Button>
+									<Button
+										variant="outline"
+										onClick={() => handleSocialSignIn("github")}
+										disabled={isPending}
+										className="w-full"
+									>
+										Continue with GitHub
+									</Button>
+								</div>
+							</>
+						) : (
+							<Form onSubmit={handleVerifyOtp}>
 								<FormItem>
-									<FormLabel htmlFor="email">Email</FormLabel>
+									<FormLabel htmlFor="otp">Verification Code</FormLabel>
 									<FormControl>
 										<Input
-											id="email"
-											type="email"
-											value={email}
-											onChange={(e) => setEmail(e.target.value)}
-											placeholder="Enter your email"
-											autoComplete="email"
+											id="otp"
+											type="text"
+											value={otp}
+											onChange={(e) => setOtp(e.target.value)}
+											placeholder="Enter 6-digit code"
+											maxLength={6}
+											autoComplete="one-time-code"
 										/>
 									</FormControl>
-									<FormMessage>{emailError}</FormMessage>
+									<FormMessage>{otpError}</FormMessage>
 								</FormItem>
 
 								{result && (
@@ -147,78 +202,30 @@ export function Login({ ctx }: { ctx: AppContext }) {
 									</FormMessage>
 								)}
 
-								<Button type="submit" disabled={isPending} className="w-full">
-									{isPending ? "Sending Code..." : "Continue with Email"}
-								</Button>
+								<div className="flex gap-3">
+									<Button
+										type="button"
+										variant="outline"
+										onClick={handleBackToEmail}
+										disabled={isPending}
+									>
+										← Back
+									</Button>
+									<Button type="submit" disabled={isPending} className="flex-1">
+										{isPending ? "Verifying..." : "Verify Code"}
+									</Button>
+								</div>
 							</Form>
-							<div className="mt-4 space-y-2">
-								<Button
-									variant="outline"
-									onClick={() => handleSocialSignIn("google")}
-									disabled={isPending}
-									className="w-full"
-								>
-									Continue with Google
-								</Button>
-								<Button
-									variant="outline"
-									onClick={() => handleSocialSignIn("github")}
-									disabled={isPending}
-									className="w-full"
-								>
-									Continue with GitHub
-								</Button>
-							</div>
-						</>
-					) : (
-						<Form onSubmit={handleVerifyOtp}>
-							<FormItem>
-								<FormLabel htmlFor="otp">Verification Code</FormLabel>
-								<FormControl>
-									<Input
-										id="otp"
-										type="text"
-										value={otp}
-										onChange={(e) => setOtp(e.target.value)}
-										placeholder="Enter 6-digit code"
-										maxLength={6}
-										autoComplete="one-time-code"
-									/>
-								</FormControl>
-								<FormMessage>{otpError}</FormMessage>
-							</FormItem>
+						)}
+					</CardContent>
+				</Card>
 
-							{result && (
-								<FormMessage
-									variant={result.includes("Error") ? "destructive" : "success"}
-								>
-									{result}
-								</FormMessage>
-							)}
-
-							<div className="flex gap-3">
-								<Button
-									type="button"
-									variant="outline"
-									onClick={handleBackToEmail}
-									disabled={isPending}
-								>
-									← Back
-								</Button>
-								<Button type="submit" disabled={isPending} className="flex-1">
-									{isPending ? "Verifying..." : "Verify Code"}
-								</Button>
-							</div>
-						</Form>
-					)}
-				</CardContent>
-			</Card>
-
-			<p className="mt-4 text-center text-gray-600 text-sm">
-				<a href="/" className="text-blue-600 hover:underline">
-					Back to Landing Page
-				</a>
-			</p>
-		</div>
+				<p className="mt-4 text-center text-muted-foreground text-sm">
+					<a href="/" className="text-primary hover:underline">
+						Back to Landing Page
+					</a>
+				</p>
+			</div>
+		</AppShell>
 	);
 }

@@ -1,28 +1,22 @@
-import { prefix, render, route } from "rwsdk/router";
+import { render, route } from "rwsdk/router";
 import { defineApp } from "rwsdk/worker";
 
 import { Document } from "@/app/document/Document";
 import { setCommonHeaders } from "@/app/document/headers";
 
-import { Home } from "@/app/pages/home";
+import { Counter } from "@/app/pages/counter";
+import { Guestbook } from "@/app/pages/guestbook";
 import { Landing } from "@/app/pages/landing";
-import { userRoutes } from "@/app/pages/user/routes";
-import { link } from "@/app/shared/links";
+import { NotFound } from "@/app/pages/not-found";
+import { Profile } from "@/app/pages/profile";
+import { SignIn } from "@/app/pages/sign-in";
+import { redirectIfAuth, requireAuth } from "@/app/shared/interruptors";
 import type { User } from "@/db/schema/auth-schema";
 import { auth } from "@/lib/auth";
 
 export type AppContext = {
 	user: User | undefined;
 	authUrl: string;
-};
-
-const isAuthenticated = ({ ctx }: { ctx: AppContext }) => {
-	if (!ctx.user) {
-		return new Response(null, {
-			status: 302,
-			headers: { Location: link("/user/login") },
-		});
-	}
 };
 
 export default defineApp([
@@ -53,7 +47,10 @@ export default defineApp([
 
 	render(Document, [
 		route("/", Landing),
-		route("/home", [isAuthenticated, Home]),
-		prefix("/user", userRoutes),
+		route("/sign-in", [redirectIfAuth, SignIn]),
+		route("/guestbook", [requireAuth, Guestbook]),
+		route("/counter", [requireAuth, Counter]),
+		route("/profile", [requireAuth, Profile]),
+		route("*", NotFound),
 	]),
 ]);
