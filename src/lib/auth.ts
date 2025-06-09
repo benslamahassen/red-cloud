@@ -13,7 +13,6 @@ export const auth = betterAuth({
 		provider: "sqlite",
 		schema: schema,
 	}),
-	baseURL: env.BETTER_AUTH_URL,
 	secret: env.BETTER_AUTH_SECRET,
 	secondaryStorage,
 	socialProviders: {

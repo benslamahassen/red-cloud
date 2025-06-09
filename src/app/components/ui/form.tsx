@@ -1,7 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 
-import { Label } from "@/app/shared/components/ui/label";
+import { Label } from "@/app/components/ui/label";
 import { cn } from "@/lib/utils";
 
 // Simple form wrapper - just a div with form styling

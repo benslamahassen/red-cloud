@@ -1,17 +1,18 @@
 {
-  "name": "rw-cloud-site",
+  "name": "red-cloud",
   "main": "src/worker.tsx",
   "compatibility_date": "2025-04-20",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": { "directory": "dist/client", "binding": "ASSETS" },
+  "assets": { "binding": "ASSETS", "directory": "dist/client" },
+  "vars": { "APP_NAME": "red-cloud" },
   "kv_namespaces": [
-    { "binding": "SESSIONS_KV", "id": "edf879a4dad74bdfa8d63be33f298b98" }
+    { "binding": "SESSIONS_KV", "id": "b9df4871f0b44918938c00a61dbaa922" }
   ],
   "d1_databases": [
     {
       "binding": "DB",
-      "database_id": "7ac45e28-4505-4c83-a9c0-5a980372226a",
-      "database_name": "rw-cloud-site-users-db",
+      "database_id": "61036b92-2bbc-4dc6-975b-8c33513012c2",
+      "database_name": "red-cloud-users-db",
       "migrations_dir": "src/db/migrations"
     }
   ]

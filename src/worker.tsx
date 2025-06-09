@@ -1,8 +1,10 @@
-import { render, route } from "rwsdk/router";
+import { layout, render, route } from "rwsdk/router";
 import { defineApp } from "rwsdk/worker";
 
 import { Document } from "@/app/document/Document";
 import { setCommonHeaders } from "@/app/document/headers";
+
+import { AppLayout } from "@/app/layouts/app-layout";
 
 import { Counter } from "@/app/pages/counter";
 import { Guestbook } from "@/app/pages/guestbook";
@@ -10,9 +12,11 @@ import { Landing } from "@/app/pages/landing";
 import { NotFound } from "@/app/pages/not-found";
 import { Profile } from "@/app/pages/profile";
 import { SignIn } from "@/app/pages/sign-in";
-import { redirectIfAuth, requireAuth } from "@/app/shared/interruptors";
+
 import type { User } from "@/db/schema/auth-schema";
+
 import { auth } from "@/lib/auth";
+import { redirectIfAuth, requireAuth } from "@/lib/interruptors";
 
 export type AppContext = {
 	user: User | undefined;
@@ -46,11 +50,13 @@ export default defineApp([
 	}),
 
 	render(Document, [
-		route("/", Landing),
-		route("/sign-in", [redirectIfAuth, SignIn]),
-		route("/guestbook", [requireAuth, Guestbook]),
-		route("/counter", [requireAuth, Counter]),
-		route("/profile", [requireAuth, Profile]),
+		layout(AppLayout, [
+			route("/", Landing),
+			route("/sign-in", [redirectIfAuth, SignIn]),
+			route("/guestbook", [requireAuth, Guestbook]),
+			route("/counter", [requireAuth, Counter]),
+			route("/profile", [requireAuth, Profile]),
+		]),
 		route("*", NotFound),
 	]),
 ]);

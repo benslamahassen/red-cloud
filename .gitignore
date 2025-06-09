@@ -13,13 +13,14 @@ node_modules
 .env.production.local
 *.vars
 
-# wrangler project
+# Wrangler
 .wrangler
+wrangler.jsonc
 
-# alchemy
+# Alchemy
 .alchemy
 
-# builds
+# Builds
 dist
 .output
 .out
@@ -28,7 +29,13 @@ dist
 # Misc
 .DS_Store
 
-#TypeScript
+# TypeScript
 *.tsbuildinfo
 .tscache
 tsconfig.tsbuildinfo
+
+# AI
+.claude
+.opencode
+CONTEXT.md
+CLAUDE.md

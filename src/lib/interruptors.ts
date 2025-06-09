@@ -1,4 +1,4 @@
-import { link } from "@/app/shared/links";
+import { link } from "@/lib/links";
 import type { AppContext } from "@/worker";
 
 export const redirectIfAuth = ({ ctx }: { ctx: AppContext }) => {

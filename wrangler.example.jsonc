@@ -1,0 +1,17 @@
+{
+	"name": "red-cloud",
+	"main": "src/worker.tsx",
+	"compatibility_date": "2025-04-20",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": { "binding": "ASSETS", "directory": "dist/client" },
+	"vars": { "APP_NAME": "red-cloud" },
+	"kv_namespaces": [{ "binding": "SESSIONS_KV", "id": "YOUR_KV_ID" }],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_id": "YOUR_D1_ID",
+			"database_name": "YOUR_D1_NAME",
+			"migrations_dir": "src/db/migrations"
+		}
+	]
+}

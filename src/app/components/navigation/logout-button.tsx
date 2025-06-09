@@ -1,9 +1,10 @@
 "use client";
 
-import { link } from "@/app/shared/links";
+import { Button } from "@/app/components/ui/button";
 import { setupAuthClient } from "@/lib/auth-client";
+import { link } from "@/lib/links";
+import { LogOutIcon } from "lucide-react";
 import { useTransition } from "react";
-import { Button } from "./ui/button";
 
 export function LogoutButton({
 	className,
@@ -25,8 +26,14 @@ export function LogoutButton({
 	};
 
 	return (
-		<Button onClick={handleSignOut} disabled={isPending} className={className}>
-			{isPending ? "Logging out..." : "Log Out"}
+		<Button
+			variant="ghost"
+			onClick={handleSignOut}
+			disabled={isPending}
+			className={className}
+		>
+			<LogOutIcon className="mr-2 size-4" />
+			{isPending ? "Signing out..." : "Sign Out"}
 		</Button>
 	);
 }

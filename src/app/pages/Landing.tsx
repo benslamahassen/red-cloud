@@ -1,32 +1,36 @@
-import { Button } from "@/app/shared/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/app/shared/components/ui/card";
-import { link } from "@/app/shared/links";
-
 export function Landing() {
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-background">
+		<div className="flex min-h-[60vh] items-center justify-center bg-background">
 			<div className="text-center">
-				<h1 className="font-bold text-6xl">Redwood Cloud</h1>
-				<p className="mt-4 text-muted-foreground text-xl">
-					A modern full-stack application built with RedwoodSDK
+				<h1 className="font-bold text-6xl">Red Cloud</h1>
+				<p className="mt-4 flex flex-col items-center gap-2 text-muted-foreground text-xl sm:flex-row sm:justify-center">
+					<a
+						href="https://github.com/redwoodjs/sdk"
+						className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text font-bold text-transparent underline"
+					>
+						RedwoodSDK
+					</a>
+					<span className="text-2xl">➕</span>
+					<a
+						href="https://github.com/sam-goodwin/alchemy"
+						className="bg-gradient-to-r from-blue-500 to-pink-500 bg-clip-text font-bold text-transparent underline"
+					>
+						Alchemy
+					</a>
+					<span className="text-2xl">🤝</span>
+					<a
+						href="https://github.com/oscabriel/better-cloud"
+						className="font-bold"
+					>
+						Better-Cloud
+					</a>
 				</p>
 				<div className="mt-8 space-x-4">
 					<a
-						href="/sign-in"
+						href="/guestbook"
 						className="inline-block rounded-md bg-primary px-6 py-3 text-primary-foreground hover:bg-primary/90"
 					>
 						Get Started
-					</a>
-					<a
-						href="/guestbook"
-						className="inline-block rounded-md border px-6 py-3 hover:bg-accent"
-					>
-						View Guestbook
 					</a>
 				</div>
 			</div>
