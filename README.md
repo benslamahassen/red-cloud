@@ -104,6 +104,30 @@ To deploy the whole application (app, db, ecc) to Cloudflare:
 
 Everytime you change anything to the infra definition and run `infra:up` your whole infra will be updated, that's it.
 
+## Theme System
+
+I eventually managed to implement a robust dark/light theme system that prevents the hydration errors and FOUC (Flashes of Unstyled Content) I was originally getting because of the complexity of SSR frameworks.
+
+### Additions/Changes
+
+Starting from the default recommendation from (shadcn)[https://ui.shadcn.com/docs/dark-mode/vite] for adding dark mode to a Vite app, I added:
+- **Blocking Theme Script (`public/theme-script.js`)**:
+  - Executes synchronously in the `<head>` before any React hydration
+  - Reads theme preference from localStorage (`red-cloud-theme` key)
+  - Immediately applies the correct theme class (`light`, `dark`) to `<html>`
+  - Handles system preference detection via `prefers-color-scheme`
+  - Includes error handling with fallback to system theme
+- **Separated Theme Hook** (`src/app/hooks/use-theme.tsx`): Separated hook logic from the theme-provider for better tree-shaking
+- **Theme Provider** (`src/app/components/navigation/theme-provider.tsx`): Manages theme state with SSR-safe initialization
+- **CSS Variables** (`src/app/document/styles.css`): Tailwind v4 with custom properties for light/dark modes
+- **Hydration Warning Suppression** (`src/client.tsx`): Suppresses Radix UI ID mismatch warnings to clean up console output (not necessary, but it cleans up the browser console errors)
+
+These additions allowed us to acheive:
+- Zero flash theme switching
+- System preference detection
+- Persistent user choice via localStorage
+- Hydration-safe SSR compatibility
+
 ## Project Structure
 
 ```
@@ -123,6 +147,8 @@ Everytime you change anything to the infra definition and run `infra:up` your wh
 │   ├── types/             # Project wide & system types
 │   ├── client.tsx         # Client entry point
 │   └── worker.tsx         # Server entry point
+├── public/
+│   └── theme-script.js    # Blocking theme script for FOUC prevention
 ├── infra.run.ts           # Alchemy main script for orchestrating infrastructure's resources
 └── *.config               # Various configuration files (drizzle, vite, wrangler, typescript)
 ```
