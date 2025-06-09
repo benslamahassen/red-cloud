@@ -30,7 +30,7 @@ CREATE TABLE `session` (
 CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-breakpoint
 CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
-	`name` text NOT NULL,
+	`name` text,
 	`email` text NOT NULL,
 	`email_verified` integer NOT NULL,
 	`image` text,

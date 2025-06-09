@@ -6,12 +6,12 @@
   "assets": { "binding": "ASSETS", "directory": "dist/client" },
   "vars": { "APP_NAME": "red-cloud" },
   "kv_namespaces": [
-    { "binding": "SESSIONS_KV", "id": "b9df4871f0b44918938c00a61dbaa922" }
+    { "binding": "SESSIONS_KV", "id": "cf8e341579d84f0c9af3afac2e1080b9" }
   ],
   "d1_databases": [
     {
       "binding": "DB",
-      "database_id": "61036b92-2bbc-4dc6-975b-8c33513012c2",
+      "database_id": "084a9af7-adc9-4b2a-8003-f151dcf1e80b",
       "database_name": "red-cloud-users-db",
       "migrations_dir": "src/db/migrations"
     }

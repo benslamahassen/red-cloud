@@ -1,8 +1,23 @@
+const title = `
+
+ ███████████                █████      █████████  ████                          █████
+░░███░░░░░███              ░░███      ███░░░░░███░░███                         ░░███ 
+ ░███    ░███   ██████   ███████     ███     ░░░  ░███   ██████  █████ ████  ███████ 
+ ░██████████   ███░░███ ███░░███    ░███          ░███  ███░░███░░███ ░███  ███░░███ 
+ ░███░░░░░███ ░███████ ░███ ░███    ░███          ░███ ░███ ░███ ░███ ░███ ░███ ░███ 
+ ░███    ░███ ░███░░░  ░███ ░███    ░░███     ███ ░███ ░███ ░███ ░███ ░███ ░███ ░███ 
+ █████   █████░░██████ ░░████████    ░░█████████  █████░░██████  ░░████████░░████████
+░░░░░   ░░░░░  ░░░░░░   ░░░░░░░░      ░░░░░░░░░  ░░░░░  ░░░░░░    ░░░░░░░░  ░░░░░░░░ 
+
+`;
+
 export function Landing() {
 	return (
 		<div className="flex min-h-[60vh] items-center justify-center bg-background">
 			<div className="text-center">
-				<h1 className="font-bold text-6xl">Red Cloud</h1>
+				<pre className="mx-auto overflow-x-auto text-center font-mono text-[0.5rem] sm:text-xs md:text-sm">
+					{title}
+				</pre>
 				<p className="mt-4 flex flex-col items-center gap-2 text-muted-foreground text-xl sm:flex-row sm:justify-center">
 					<a
 						href="https://github.com/redwoodjs/sdk"
