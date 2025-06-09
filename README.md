@@ -106,11 +106,11 @@ Everytime you change anything to the infra definition and run `infra:up` your wh
 
 ## Theme System
 
-I eventually managed to implement a robust dark/light theme system that prevents the hydration errors and FOUC (Flashes of Unstyled Content) I was originally getting because of the complexity of SSR frameworks.
+I eventually managed to implement a robust dark/light theme system that prevents the hydration errors and FOUCs (Flashes of Unstyled Content) I was originally getting because of the complexity of client-only features within SSR-first frameworks.
 
 ### Additions/Changes
 
-Starting from the default recommendation from (shadcn)[https://ui.shadcn.com/docs/dark-mode/vite] for adding dark mode to a Vite app, I added:
+Starting from the default recommendation from [shadcn](https://ui.shadcn.com/docs/dark-mode/vite) for adding dark mode to a Vite app, I added:
 - **Blocking Theme Script (`public/theme-script.js`)**:
   - Executes synchronously in the `<head>` before any React hydration
   - Reads theme preference from localStorage (`red-cloud-theme` key)
