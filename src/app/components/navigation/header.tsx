@@ -9,7 +9,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
-import type { AppContext } from "@/worker";
+import type { AppContext } from "@/types/app";
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { useState } from "react";
 

@@ -1,24 +1,9 @@
-import { link } from "@/lib/utils/links";
-import type { AppContext } from "@/worker";
+import type { AppContext } from "@/types/app";
 
-export const redirectIfAuth = ({ ctx }: { ctx: AppContext }) => {
-	if (ctx.user) {
-		return new Response(null, {
-			status: 302,
-			headers: { Location: link("/") },
-		});
-	}
-};
-
-export const requireAuth = ({ ctx }: { ctx: AppContext }) => {
-	if (!ctx.user) {
-		return new Response(null, {
-			status: 302,
-			headers: { Location: link("/sign-in") },
-		});
-	}
-};
-
+/**
+ * Onboarding interruptor that checks if authenticated users need to complete onboarding.
+ * Sets ctx.needsOnboarding flag for UI components to display onboarding modals.
+ */
 export const requireOnboarding = async ({
 	ctx,
 	request,

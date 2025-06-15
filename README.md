@@ -14,14 +14,14 @@ This repo contain a fullstack example to build on Cloudflare with the following 
 ## Resources
 
 - D1 (as main DB)
-- KV (for sessions)
+- Durable Objects (for session management)
 - Website running on workers using RedwoodSDK
 
 All the required resources are configured via Alchmey in alchemy.run.ts
 
 ## Credits
 
-- **MJ Meyer**: this example was eavily inspired and borrow alot from his [repo](https://github.com/mj-meyer/rwsdk-better-auth-drizzle), adding little things here and there, mainly Alchemy as IaC.
+- **MJ Meyer**: this example was heavily inspired by his [repo](https://github.com/mj-meyer/rwsdk-better-auth-drizzle), adding little things here and there, mainly Alchemy as IaC.
   - Check /types/env.d.ts to see how our IaC help defining our types (no need to generate types with Wrangler)
   - Check ./alchemy.run.ts to see how the whole infra is defined as code via Alchemy
 
@@ -30,18 +30,21 @@ All the required resources are configured via Alchmey in alchemy.run.ts
 ### 1 Create your new project:
 
 ```shell
-git clone https://github.com/nickbalestra/fullstack-cf-example
-cd fullstack-cf-example
+git clone https://github.com/oscabriel/red-cloud
+cd red-cloud
 bun install
 ```
 
 ### 2 Setup your env virables
 
-Create an .env file (look at the provided env.example for reference)
+```shell
+cp .env.example .env
+```
 
-### 3 Run the application locally with all the resources needed like db, ...
+### 3 Setup local dev environement then launch dev server
 
 ```shell
+bun dev:init
 bun dev
 ```
 
@@ -58,20 +61,23 @@ bun infra:up
 
 ## Application Routes
 
-This example includes several key routes:
+This application includes the following key routes:
 
-- **/** - The landing page with a link to the protected home page
-- **/home** - A protected page that requires authentication (redirects to login if not authenticated)
-- **/user/login** - The login page where users can authenticate
+- **/** - Landing page with authentication and navigation
+- **/guestbook** - Interactive guestbook where users can leave messages (requires authentication)
+- **/profile** - User profile management with device session control (requires authentication)
+- **/sign-in** - Authentication page with OTP and social login options
+- **Protected Routes** - All authenticated routes use interruptor-based authentication middleware
 
 ## Authentication Flow
 
 This example includes a complete authentication system with:
 
-- OTP for signup and login
-- Session management using a seperate KV database
-- Protected routes
-- Logout functionality
+- OTP for signup and login (with email integration via Resend)
+- Social authentication (Google & GitHub OAuth)
+- Advanced session management using Durable Objects with intelligent caching
+- Protected routes with interruptor-based authentication
+- Multi-device session support with proper logout functionality
 
 ## Database Configuration
 
@@ -104,54 +110,138 @@ To deploy the whole application (app, db, ecc) to Cloudflare:
 
 Everytime you change anything to the infra definition and run `infra:up` your whole infra will be updated, that's it.
 
-## Theme System
+## Codebase Enhancements & Architecture
 
-I eventually managed to implement a robust dark/light theme system that prevents the hydration errors and FOUCs (Flashes of Unstyled Content) I was originally getting because of the complexity of client-only features within SSR-first frameworks.
+This project has evolved significantly from a basic implementation to a more production-ready codebase. Here are the major architectural improvements:
 
-### Additions/Changes
+### 🏗️ Session Management Overhaul
 
-Starting from the default recommendation from [shadcn](https://ui.shadcn.com/docs/dark-mode/vite) for adding dark mode to a Vite app, I added:
+We've completely redesigned the session management system for better performance, reliability, and dx:
+
+- **Migrated from KV to Durable Objects**: Replaced KV secondary storage with Durable Objects for session persistence, providing better consistency and state management
+- **Intelligent Caching Strategy**: Implemented a 30-second cache refresh mechanism with `SESSION_CACHE_REFRESH_MS` constant to balance performance and data freshness
+- **Enhanced Error Handling**: Proper error propagation using RedwoodSDK's `ErrorResponse` type for consistent error handling across the application
+- **Session Lifecycle Management**: Complete session creation, updates, and revocation with proper expiration handling
+
+**Key Files:**
+- `src/lib/session/store.ts` - Centralized session management with better-auth integration (275 lines)
+- `src/lib/session/session-do.ts` - Durable Object implementation for session persistence (156 lines)
+
+### 🎨 Theme System
+
+We implemented a dark/light theme system that prevents hydration errors and FOUCs (Flashes of Unstyled Content) commonly encountered in SSR-first frameworks.
+
+**Starting from the default [shadcn](https://ui.shadcn.com/docs/dark-mode/vite) recommendation, we added:**
+
 - **Blocking Theme Script (`public/theme-script.js`)**:
   - Executes synchronously in the `<head>` before any React hydration
   - Reads theme preference from localStorage (`red-cloud-theme` key)
   - Immediately applies the correct theme class (`light`, `dark`) to `<html>`
   - Handles system preference detection via `prefers-color-scheme`
   - Includes error handling with fallback to system theme
-- **Separated Theme Hook** (`src/app/hooks/use-theme.tsx`): Separated hook logic from the theme-provider for better tree-shaking
+
+- **Separate Theme Hook** (`src/app/hooks/use-theme.ts`): Separated hook logic from the theme-provider for better tree-shaking
 - **Theme Provider** (`src/app/components/navigation/theme-provider.tsx`): Manages theme state with SSR-safe initialization
 - **CSS Variables** (`src/app/document/styles.css`): Tailwind v4 with custom properties for light/dark modes
-- **Hydration Warning Suppression** (`src/client.tsx`): Suppresses Radix UI ID mismatch warnings to clean up console output (not necessary, but it cleans up the browser console errors)
+- **Hydration Warning Suppression** (`src/client.tsx`): Suppresses Radix UI ID mismatch warnings to clean up console output
 
-These additions allowed us to acheive:
+**Achievements:**
 - Zero flash theme switching
 - System preference detection
 - Persistent user choice via localStorage
 - Hydration-safe SSR compatibility
 
+### 📁 Feature-Based Architecture
+
+Migrated from single-file pages to a well-organized, feature-based directory structure:
+
+**Pages Reorganization:**
+```
+src/app/pages/
+├── guestbook/
+│   ├── guestbook-page.tsx   # page component
+│   ├── functions.ts         # server functions
+│   └── _components/         # specialized components
+├── profile/
+│   ├── profile-page.tsx
+│   ├── functions.ts
+│   └── _components/
+└── sign-in/
+    ├── sign-in-page.tsx
+    └── _components/
+```
+
+**Library Organization:**
+```
+src/lib/
+├── auth/ - Better-auth config and utilities
+├── session/ - Durable Object session management
+├── middleware/ - Request middleware implementations
+├── utils/ - Centralized utility functions and constants
+└── validators/ - Zod validation schemas by feature
+```
+
+### 🔧 Technical Improvements
+
+**Authentication Enhancements:**
+- **Centralized config**: All better-auth setup in `src/lib/auth/index.ts`
+- **Multi-session Support**: Enabled via better-auth plugins for better user experience
+- **Email OTP Integration**: Configured with Resend for reliable email delivery
+- **Social Providers**: Google and GitHub OAuth support
+
+**Validation & Type Safety:**
+- **Feature-based Validators**: Organized Zod schemas by functionality (auth, guestbook, profile)
+- **Comprehensive Type Definitions**: New `src/types/` directory with API, hooks, session, and UI types
+- **Enhanced TypeScript Coverage**: Improved type safety across the entire application
+
+**Developer Experience:**
+- **Centralized Constants**: Consolidated all reusable constants under `src/lib/utils/constants.ts`
+- **Consistent Error Handling**: Standardized error responses using RedwoodSDK patterns
+- **Improved Logging**: Better development-time debugging with structured logging
+- **Code Quality**: Enhanced linting and formatting compliance with Biome.js
+
+### 🎯 UI/UX Enhancements
+
+**User Experience Improvements:**
+- **Onboarding Flow**: Modal-based user onboarding for better first-time experience
+- **Toast Notifications**: Sonner integration for user feedback
+- **Loading States**: Skeleton components for better perceived performance
+- **Form Validation**: Enhanced client and server-side validation with better error messages
+
 ## Project Structure
 
 ```
 ├── src/
-│   ├── app/               # UI components
-│   │   ├── pages/         # Page components
-│   │   ├── shared/        # Shared components
-│   │   └── document/      # Root document/headers/css
-│   ├── db/                # Database configuration
-│   │   ├── migrations/    # Database migrations
-│   │   ├── schema/        # Drizzle schema definitions
-│   │   ├── scripts/       # Database scripts for ie seeding
-│   │   └── db.ts          # Database connection
-│   ├── lib/               # Application logic
-│   │   ├── auth/          # Authentication configuration
-│   │   ├── session/       # Session management with Durable Objects
-│   │   ├── middleware/    # Request middleware
-│   │   ├── utils/         # Utility functions
-│   │   └── validators/    # Zod validation schemas
-│   ├── types/             # Project wide & system types
-│   ├── client.tsx         # Client entry point
-│   └── worker.tsx         # Server entry point
-├── public/
-│   └── theme-script.js    # Blocking theme script for FOUC prevention
-├── infra.run.ts           # Alchemy main script for orchestrating infrastructure's resources
-└── *.config               # Various configuration files (drizzle, vite, wrangler, typescript)
+│   ├── app/                      # UI components and application logic
+│   │   ├── components/           # Reusable UI components          
+│   │   ├── document/             # Root document config
+│   │   ├── hooks/                # Custom React hooks
+│   │   ├── layouts/              # Layout components
+│   │   ├── pages/                # Feature-based page organization
+│   │   │   ├── [feature]/        # Feature page directory
+│   │   │   │   ├── _components/  # Feature-specific components
+│   │   │   │   ├── functions.ts  # Feature-specific server functions
+│   │   │   │   └── [page].tsx    # Feature page component
+│   │   │   └── landing.tsx       # Landing page component
+│   │   └── providers/            # React context providers
+│   ├── db/                       # Database config
+│   ├── lib/                      # Core application logic
+│   │   ├── auth/                 # Authentication config
+│   │   ├── middleware/           # Request middleware, interruptors
+│   │   ├── session/              # Session management DO
+│   │   ├── utils/                # Utility functions, constants, etc
+│   │   └── validators/           # Zod validation schemas
+│   ├── types/                    # Shared app type definitions
+│   ├── client.tsx                # Client-side entry point
+│   └── worker.tsx                # Server-side entry point
+├── types/                        # Global type definitions
+├── public/                       # Public files
+├── alchemy.run.ts                # Alchemy Infrastructure-as-Code
+├── components.json               # shadcn/ui config
+├── drizzle.config.ts             # Drizzle ORM config
+├── package.json                  # Dependencies and scripts
+├── tailwind.config.ts            # Tailwind CSS config
+├── tsconfig.json                 # TypeScript config
+├── vite.config.ts                # Vite build config
+└── wrangler.jsonc                # Wrangler file (generated by Alchemy)
 ```

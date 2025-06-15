@@ -3,9 +3,9 @@ import { user } from "@/db/schema/auth-schema";
 import { eq } from "drizzle-orm";
 import type { RequestInfo } from "rwsdk/worker";
 
-import { ProfileForm } from "./_components/profile-form";
-import { ProfileInfo } from "./_components/profile-info";
-import { SessionManager } from "./_components/session-manager";
+import { ProfileForm } from "./components/profile-form";
+import { ProfileInfo } from "./components/profile-info";
+import { SessionManager } from "./components/session-manager";
 
 async function getUserProfile(userId: string) {
 	try {

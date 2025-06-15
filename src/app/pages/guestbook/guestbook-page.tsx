@@ -1,5 +1,5 @@
-import { GuestbookForm } from "@/app/pages/guestbook/_components/guestbook-form";
-import { GuestbookList } from "@/app/pages/guestbook/_components/guestbook-list";
+import { GuestbookForm } from "@/app/pages/guestbook/components/guestbook-form";
+import { GuestbookList } from "@/app/pages/guestbook/components/guestbook-list";
 import { db } from "@/db";
 import { guestbook_message } from "@/db/schema/guestbook-schema";
 import type { GuestBookMessage } from "@/db/schema/guestbook-schema";

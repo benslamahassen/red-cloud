@@ -15,7 +15,7 @@ import {
 	InputOTPSlot,
 } from "@/app/components/ui/input-otp";
 import { useSignInForm } from "@/app/hooks/use-sign-in-form";
-import { SocialSignInButton } from "@/app/pages/sign-in/_components/social-sign-in-button";
+import { SocialSignInButton } from "@/app/pages/sign-in/components/social-sign-in-button";
 import { SIGN_IN_FORM, SOCIAL_PROVIDERS } from "@/lib/utils/constants";
 import { ExternalLink } from "lucide-react";
 

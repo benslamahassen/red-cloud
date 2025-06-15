@@ -3,13 +3,14 @@ import { user } from "@/db/schema/auth-schema";
 import type { User } from "@/db/schema/auth-schema";
 import { auth } from "@/lib/auth";
 import { SESSION_CACHE_REFRESH_MS } from "@/lib/utils/constants";
-import type { SessionDurableObjectStub, SessionStore } from "@/types/api";
 import type { SessionData } from "@/types/session";
+import type {
+	SessionDurableObjectStub,
+	SessionStore,
+} from "@/types/session-api";
 import type { WorkerEnv } from "@root/types/env";
 import { eq } from "drizzle-orm";
 import { ErrorResponse } from "rwsdk/worker";
-
-// Use the centralized cache refresh interval constant
 
 const createSessionStore = (env: WorkerEnv): SessionStore => ({
 	async load(request: Request): Promise<SessionData | null> {

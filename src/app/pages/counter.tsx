@@ -1,4 +1,4 @@
-import type { AppContext } from "@/worker";
+import type { AppContext } from "@/types/app";
 
 export function Counter({ ctx }: { ctx: AppContext }) {
 	return (

@@ -18,7 +18,7 @@ import {
 } from "@/app/components/ui/dropdown-menu";
 import { useSession } from "@/app/hooks/use-session";
 import { getUserDisplayName, getUserInitials } from "@/lib/utils/user-utils";
-import type { AppContext } from "@/worker";
+import type { AppContext } from "@/types/app";
 import { UserCircle } from "lucide-react";
 
 interface UserMenuProps {

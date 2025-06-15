@@ -1,8 +1,12 @@
 import { auth } from "@/lib/auth";
 import { getSessionStore } from "@/lib/session/store";
-import type { AppContext } from "@/worker";
+import type { AppContext } from "@/types/app";
 import { ErrorResponse } from "rwsdk/worker";
 
+/**
+ * Session middleware that handles user authentication and session loading.
+ * This middleware loads user data from the session store and populates ctx.user.
+ */
 export const sessionMiddleware = async ({
 	ctx,
 	request,

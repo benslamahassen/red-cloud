@@ -1,6 +1,6 @@
 import { Button } from "@/app/components/ui/button";
-import { GitHubIcon } from "@/app/pages/sign-in/_components/github-icon";
-import { GoogleIcon } from "@/app/pages/sign-in/_components/google-icon";
+import { GitHubIcon } from "@/app/pages/sign-in/components/github-icon";
+import { GoogleIcon } from "@/app/pages/sign-in/components/google-icon";
 import {
 	SIGN_IN_FORM,
 	SOCIAL_PROVIDERS,

@@ -1,5 +1,5 @@
 import { Header } from "@/app/components/navigation/header";
-import { OnboardingModal } from "@/app/pages/guestbook/_components/onboarding-modal";
+import { OnboardingModal } from "@/app/pages/guestbook/components/onboarding-modal";
 import { ClientProviders } from "@/app/providers/client-providers";
 import type { LayoutProps } from "rwsdk/router";
 
