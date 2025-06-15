@@ -13,7 +13,16 @@ import { Monitor, Smartphone, Tablet, Trash2 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import type { DeviceSession } from "@/types/session";
+interface SessionData {
+	id: string;
+	token: string;
+	expiresAt: Date;
+	createdAt: Date;
+	updatedAt: Date;
+	ipAddress?: string | null;
+	userAgent?: string | null;
+	userId: string;
+}
 
 interface SessionManagerProps {
 	authUrl: string;
@@ -68,14 +77,14 @@ function formatDate(date: Date): string {
 }
 
 function isCurrentSession(
-	session: DeviceSession,
+	session: SessionData,
 	currentSessionToken?: string,
 ): boolean {
-	return session.session.token === currentSessionToken;
+	return session.token === currentSessionToken;
 }
 
 export function SessionManager({ authUrl }: SessionManagerProps) {
-	const [sessions, setSessions] = useState<DeviceSession[]>([]);
+	const [sessions, setSessions] = useState<SessionData[]>([]);
 	const [currentSessionToken, setCurrentSessionToken] = useState<string>();
 	const [isLoading, setIsLoading] = useState(true);
 	const [isPending, startTransition] = useTransition();
@@ -93,6 +102,7 @@ export function SessionManager({ authUrl }: SessionManagerProps) {
 
 			// Get current session to identify which one is active
 			const { data: currentSession } = await authClient.getSession();
+			console.log("🔍 [Session Manager] Current session:", currentSession);
 
 			let currentToken: string | undefined;
 			if (currentSession?.session) {
@@ -100,63 +110,55 @@ export function SessionManager({ authUrl }: SessionManagerProps) {
 				setCurrentSessionToken(currentToken);
 			}
 
-			// List all device sessions
-			const deviceSessions = await authClient.multiSession.listDeviceSessions();
+			// List all sessions
+			const { data: allSessions, error } = await authClient.listSessions();
+			console.log(
+				"📱 [Session Manager] All sessions response:",
+				allSessions,
+				error,
+			);
 
-			if (
-				deviceSessions &&
-				!("error" in deviceSessions) &&
-				Array.isArray(deviceSessions)
-			) {
-				// Check if current session is in the list
-				const hasCurrentSession =
-					currentToken &&
-					(deviceSessions as DeviceSession[]).some(
-						(session: DeviceSession) => session.session.token === currentToken,
-					);
-
-				// If current session is missing from the list, add it manually
-				if (currentSession?.session && !hasCurrentSession) {
-					const currentSessionData: DeviceSession = {
-						session: currentSession.session,
-						user: currentSession.user,
-					};
-					setSessions([
-						currentSessionData,
-						...(deviceSessions as DeviceSession[]),
-					]);
+			if (error) {
+				console.error("❌ [Session Manager] Error listing sessions:", error);
+				toast.error("Failed to load sessions");
+				// Fallback to current session if available
+				if (currentSession?.session) {
+					setSessions([currentSession.session]);
 				} else {
-					setSessions(deviceSessions as DeviceSession[]);
+					setSessions([]);
 				}
+			} else if (allSessions && Array.isArray(allSessions)) {
+				console.log(
+					"✅ [Session Manager] Valid sessions array:",
+					allSessions.length,
+				);
+				setSessions(allSessions);
 			} else {
+				console.log(
+					"❌ [Session Manager] Invalid sessions response, falling back to current session",
+				);
 				// If API fails but we have current session, show at least that
 				if (currentSession?.session) {
-					const currentSessionData: DeviceSession = {
-						session: currentSession.session,
-						user: currentSession.user,
-					};
-					setSessions([currentSessionData]);
+					setSessions([currentSession.session]);
 				} else {
 					setSessions([]);
 				}
 			}
 		} catch (error) {
+			console.error("💥 [Session Manager] Error loading sessions:", error);
 			toast.error("Failed to load sessions");
 
 			// Try to show current session even if API fails
 			try {
 				const { data: currentSession } = await authClient.getSession();
 				if (currentSession?.session) {
-					const currentSessionData: DeviceSession = {
-						session: currentSession.session,
-						user: currentSession.user,
-					};
-					setSessions([currentSessionData]);
+					setSessions([currentSession.session]);
 					setCurrentSessionToken(currentSession.session.token);
 				} else {
 					setSessions([]);
 				}
 			} catch (fallbackError) {
+				console.error("💥 [Session Manager] Fallback error:", fallbackError);
 				setSessions([]);
 			}
 		} finally {
@@ -175,14 +177,20 @@ export function SessionManager({ authUrl }: SessionManagerProps) {
 
 		startTransition(async () => {
 			try {
-				await authClient.multiSession.revoke({
-					sessionToken,
+				const { error } = await authClient.revokeSession({
+					token: sessionToken,
 				});
 
-				toast.success("Session revoked successfully");
-				// Reload sessions to reflect changes
-				await loadSessions();
+				if (error) {
+					console.error("Error revoking session:", error);
+					toast.error("Failed to revoke session");
+				} else {
+					toast.success("Session revoked successfully");
+					// Reload sessions to reflect changes
+					await loadSessions();
+				}
 			} catch (error) {
+				console.error("Error revoking session:", error);
 				toast.error("Failed to revoke session");
 			}
 		});
@@ -199,12 +207,18 @@ export function SessionManager({ authUrl }: SessionManagerProps) {
 
 		startTransition(async () => {
 			try {
-				await authClient.revokeOtherSessions();
+				const { error } = await authClient.revokeOtherSessions();
 
-				toast.success("All other sessions revoked successfully");
-				// Reload sessions to reflect changes
-				await loadSessions();
+				if (error) {
+					console.error("Error revoking other sessions:", error);
+					toast.error("Failed to revoke other sessions");
+				} else {
+					toast.success("All other sessions revoked successfully");
+					// Reload sessions to reflect changes
+					await loadSessions();
+				}
 			} catch (error) {
+				console.error("Error revoking other sessions:", error);
 				toast.error("Failed to revoke other sessions");
 			}
 		});
@@ -247,12 +261,8 @@ export function SessionManager({ authUrl }: SessionManagerProps) {
 					</p>
 				) : (
 					<div className="space-y-3">
-						{sessions.map((sessionData) => {
-							const isCurrent = isCurrentSession(
-								sessionData,
-								currentSessionToken,
-							);
-							const { session } = sessionData;
+						{sessions.map((session) => {
+							const isCurrent = isCurrentSession(session, currentSessionToken);
 
 							return (
 								<div

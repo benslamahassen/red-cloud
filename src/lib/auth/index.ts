@@ -4,7 +4,7 @@ import * as schema from "@/db/schema";
 import { verificationCodeEmail } from "@/lib/auth/email-templates";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { emailOTP, multiSession } from "better-auth/plugins";
+import { emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
 
 export const auth = betterAuth({
@@ -49,6 +49,5 @@ export const auth = betterAuth({
 				}
 			},
 		}),
-		multiSession(),
 	],
 });
