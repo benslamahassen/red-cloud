@@ -142,8 +142,11 @@ These additions allowed us to acheive:
 │   │   ├── scripts/       # Database scripts for ie seeding
 │   │   └── db.ts          # Database connection
 │   ├── lib/               # Application logic
-│   │   ├── auth.ts        # Server-side auth configuration
-│   │   └── auth-client.ts # Client-side auth configuration
+│   │   ├── auth/          # Authentication configuration
+│   │   ├── session/       # Session management with Durable Objects
+│   │   ├── middleware/    # Request middleware
+│   │   ├── utils/         # Utility functions
+│   │   └── validators/    # Zod validation schemas
 │   ├── types/             # Project wide & system types
 │   ├── client.tsx         # Client entry point
 │   └── worker.tsx         # Server entry point

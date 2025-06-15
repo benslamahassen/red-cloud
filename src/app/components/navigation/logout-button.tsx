@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/app/components/ui/button";
-import { setupAuthClient } from "@/lib/auth-client";
-import { link } from "@/lib/links";
+import { setupAuthClient } from "@/lib/auth/auth-client";
+import { link } from "@/lib/utils/links";
 import { LogOutIcon } from "lucide-react";
 import { useTransition } from "react";
 

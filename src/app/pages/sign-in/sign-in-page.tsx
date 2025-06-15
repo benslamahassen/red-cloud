@@ -1,4 +1,4 @@
-import { SignInForm } from "@/app/components/pages/sign-in/form";
+import { SignInForm } from "@/app/pages/sign-in/_components/sign-in-form";
 import type { AppContext } from "@/worker";
 
 export function SignIn({ ctx }: { ctx: AppContext }) {

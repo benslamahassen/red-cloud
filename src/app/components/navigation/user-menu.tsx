@@ -16,6 +16,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
+import { useSession } from "@/app/hooks/use-session";
+import { getUserDisplayName, getUserInitials } from "@/lib/utils/user-utils";
 import type { AppContext } from "@/worker";
 import { UserCircle } from "lucide-react";
 
@@ -23,8 +25,16 @@ interface UserMenuProps {
 	ctx: AppContext;
 }
 
+function getAvatarUrl(imagePath: string | null): string | null {
+	if (!imagePath) return null;
+	return `/r2/avatars/${imagePath.replace("avatars/", "")}`;
+}
+
 export function UserMenu({ ctx }: UserMenuProps) {
-	if (!ctx.user) {
+	// Use the enhanced session hook for user data
+	const { user: currentUser } = useSession();
+
+	if (!currentUser) {
 		return (
 			<Button variant="outline" size="sm" className="h-9 px-3" asChild>
 				<a href="/sign-in">Sign In</a>
@@ -32,16 +42,9 @@ export function UserMenu({ ctx }: UserMenuProps) {
 		);
 	}
 
-	// Get user initials for avatar fallback
-	const getUserInitials = () => {
-		if (!ctx.user?.name) return "U";
-		return ctx.user.name
-			.split(" ")
-			.map((name) => name[0])
-			.join("")
-			.toUpperCase()
-			.substring(0, 2);
-	};
+	const avatarUrl = getAvatarUrl(currentUser.image);
+	const displayName = getUserDisplayName(currentUser);
+	const initials = getUserInitials(currentUser);
 
 	return (
 		<DropdownMenu>
@@ -54,20 +57,17 @@ export function UserMenu({ ctx }: UserMenuProps) {
 				<DropdownMenuLabel className="p-0 font-normal">
 					<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 						<Avatar className="h-7 w-7 rounded-lg">
-							<AvatarImage
-								src={ctx.user.image || ""}
-								alt={ctx.user.name || "User"}
-							/>
+							<AvatarImage src={avatarUrl || ""} alt={displayName} />
 							<AvatarFallback className="rounded-lg text-xs">
-								{getUserInitials()}
+								{initials}
 							</AvatarFallback>
 						</Avatar>
 						<div className="grid flex-1 text-left text-sm leading-tight">
 							<span className="truncate font-medium text-sm">
-								{ctx.user.name || "User"}
+								{displayName}
 							</span>
 							<span className="truncate text-muted-foreground text-xs">
-								{ctx.user.email}
+								{currentUser.email}
 							</span>
 						</div>
 					</div>

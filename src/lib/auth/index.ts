@@ -1,11 +1,10 @@
 import { env } from "cloudflare:workers";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { secondaryStorage } from "@/db/secondary-storage";
-import { verificationCodeEmail } from "@/lib/email-templates";
+import { verificationCodeEmail } from "@/lib/auth/email-templates";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { emailOTP } from "better-auth/plugins";
+import { emailOTP, multiSession } from "better-auth/plugins";
 import { Resend } from "resend";
 
 export const auth = betterAuth({
@@ -14,7 +13,13 @@ export const auth = betterAuth({
 		schema: schema,
 	}),
 	secret: env.BETTER_AUTH_SECRET,
-	secondaryStorage,
+	session: {
+		storeSessionInDatabase: true,
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60,
+		},
+	},
 	socialProviders: {
 		google: {
 			clientId: env.GOOGLE_CLIENT_ID,
@@ -44,5 +49,6 @@ export const auth = betterAuth({
 				}
 			},
 		}),
+		multiSession(),
 	],
 });

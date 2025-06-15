@@ -5,15 +5,25 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "binding": "ASSETS", "directory": "dist/client" },
   "vars": { "APP_NAME": "red-cloud" },
-  "kv_namespaces": [
-    { "binding": "SESSIONS_KV", "id": "cf8e341579d84f0c9af3afac2e1080b9" }
+  "durable_objects": {
+    "bindings": [{ "name": "SESSION_DO", "class_name": "SessionDurableObject" }]
+  },
+  "r2_buckets": [
+    { "binding": "AVATARS_BUCKET", "bucket_name": "red-cloud-avatars" }
   ],
   "d1_databases": [
     {
       "binding": "DB",
-      "database_id": "084a9af7-adc9-4b2a-8003-f151dcf1e80b",
-      "database_name": "red-cloud-users-db",
+      "database_id": "5b00e298-5a3c-42af-8db7-fb72d6eb9110",
+      "database_name": "red-cloud-db",
       "migrations_dir": "src/db/migrations"
+    }
+  ],
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["SessionDurableObject"],
+      "new_classes": []
     }
   ]
 }

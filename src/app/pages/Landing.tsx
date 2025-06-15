@@ -32,12 +32,19 @@ export function Landing() {
 					>
 						Alchemy
 					</a>
-					<span className="text-2xl">🤝</span>
+					<span className="text-2xl">➕</span>
 					<a
-						href="https://github.com/oscabriel/better-cloud"
-						className="font-bold"
+						href="https://github.com/drizzle-team/drizzle-orm"
+						className="bg-gradient-to-r from-gray-600 to-lime-400 bg-clip-text font-bold text-transparent underline"
 					>
-						Better-Cloud
+						Drizzle ORM
+					</a>
+					<span className="text-2xl">➕</span>
+					<a
+						href="https://github.com/better-auth/better-auth"
+						className="bg-gradient-to-r from-gray-600 to-gray-400 bg-clip-text font-bold text-transparent underline"
+					>
+						Better-Auth
 					</a>
 				</p>
 				<div className="mt-8 space-x-4">

@@ -1,10 +1,13 @@
 import { Header } from "@/app/components/navigation/header";
-import { ThemeProvider } from "@/app/components/navigation/theme-provider";
+import { OnboardingModal } from "@/app/pages/guestbook/_components/onboarding-modal";
+import { ClientProviders } from "@/app/providers/client-providers";
 import type { LayoutProps } from "rwsdk/router";
 
 export function AppLayout({ children, requestInfo }: LayoutProps) {
+	const ctx = requestInfo?.ctx;
+
 	return (
-		<ThemeProvider defaultTheme="system" storageKey="red-cloud-theme">
+		<ClientProviders initialUser={ctx?.user}>
 			<div className="min-h-screen bg-background">
 				<header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 dark:bg-background/50">
 					<div className="container mx-auto flex h-16 items-center justify-between px-6">
@@ -15,7 +18,12 @@ export function AppLayout({ children, requestInfo }: LayoutProps) {
 					</div>
 				</header>
 				<main className="container mx-auto px-6 py-8">{children}</main>
+
+				{/* Onboarding Modal */}
+				{ctx?.needsOnboarding && ctx.user && (
+					<OnboardingModal isOpen={true} userEmail={ctx.user.email} />
+				)}
 			</div>
-		</ThemeProvider>
+		</ClientProviders>
 	);
 }

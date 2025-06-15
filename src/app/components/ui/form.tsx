@@ -2,7 +2,8 @@ import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 
 import { Label } from "@/app/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
+import type { FormMessageProps } from "@/types/ui";
 
 // Simple form wrapper - just a div with form styling
 const Form = React.forwardRef<
@@ -47,11 +48,6 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 	return (
 		<p className={cn("text-muted-foreground text-sm", className)} {...props} />
 	);
-}
-
-// Enhanced form message with variants
-interface FormMessageProps extends React.ComponentProps<"p"> {
-	variant?: "destructive" | "success" | "warning";
 }
 
 function FormMessage({
