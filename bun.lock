@@ -6,7 +6,6 @@
       "dependencies": {
         "@biomejs/biome": "^1.9.4",
         "@libsql/client": "^0.15.9",
-        "@radix-ui/react-separator": "^1.1.7",
         "@tailwindcss/vite": "^4.1.10",
         "better-auth": "^1.2.9",
         "class-variance-authority": "^0.7.1",
