@@ -55,17 +55,17 @@ export function GuestbookList({
 
 	// Render messages
 	return (
-		<div className="space-y-8">
-			<div className="border-border border-b pb-4">
-				<h2 className="font-bold text-2xl tracking-tight">
+		<div className="space-y-4 sm:space-y-8">
+			<div className="border-border border-b pb-2 sm:pb-4">
+				<h2 className="font-bold text-xl tracking-tight sm:text-2xl">
 					Messages ({messages.length})
 				</h2>
-				<p className="mt-2 text-muted-foreground text-sm">
+				<p className="mt-2 text-muted-foreground text-xs sm:text-sm">
 					Recent messages from our community
 				</p>
 			</div>
 
-			<div className="space-y-6">
+			<div className="space-y-3 sm:space-y-6">
 				{messages.map((message) => (
 					<GuestbookMessage
 						key={message.id}

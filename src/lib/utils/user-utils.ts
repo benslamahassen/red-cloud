@@ -52,3 +52,20 @@ export function getUserInitials(user: User | null | undefined): string {
 		.toUpperCase()
 		.substring(0, 2);
 }
+
+/**
+ * Gets the correct avatar URL, handling both social provider URLs and R2 storage paths.
+ */
+export function getAvatarUrl(imagePath: string | null): string | null {
+	if (!imagePath) {
+		return null;
+	}
+
+	// If it's already a full URL (from social providers), return as-is
+	if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+		return imagePath;
+	}
+
+	// Otherwise, treat it as an R2 storage path
+	return `/r2/avatars/${imagePath.replace("avatars/", "")}`;
+}

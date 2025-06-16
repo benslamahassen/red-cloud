@@ -36,12 +36,14 @@ export async function GuestbookPage({ ctx }: RequestInfo) {
 	const messagesResult = await getAllGuestbookMessages();
 
 	return (
-		<div className="container mx-auto max-w-4xl px-4 py-8">
-			<div className="space-y-8">
+		<div className="container mx-auto max-w-4xl">
+			<div className="space-y-4 sm:space-y-8">
 				{/* Page Header */}
 				<div className="space-y-2 text-center">
-					<h1 className="font-bold text-3xl tracking-tight">Guestbook</h1>
-					<p className="text-muted-foreground">
+					<h1 className="font-bold text-2xl tracking-tight sm:text-3xl">
+						Guestbook
+					</h1>
+					<p className="text-muted-foreground text-sm sm:text-base">
 						Leave a message and see what others have shared
 					</p>
 				</div>

@@ -44,14 +44,16 @@ export function GuestbookMessage({
 	canDelete,
 }: GuestbookMessageProps) {
 	return (
-		<Card className="gap-3 py-4 transition-all hover:shadow-md">
-			<CardHeader className="px-4 pb-0">
+		<Card className="gap-3 py-3 transition-all hover:shadow-md sm:py-4">
+			<CardHeader className="px-3 pb-0 sm:px-4">
 				<div className="flex items-start justify-between">
 					<div className="space-y-1">
-						<div className="flex items-center gap-3">
-							<span className="font-bold text-lg">{message.name}</span>
+						<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+							<span className="font-bold text-base sm:text-lg">
+								{message.name}
+							</span>
 							{message.country && (
-								<span className="text-muted-foreground text-sm">
+								<span className="text-muted-foreground text-xs sm:text-sm">
 									from {message.country}
 								</span>
 							)}
@@ -63,7 +65,7 @@ export function GuestbookMessage({
 					{canDelete && <DeleteMessageButton messageId={message.id} />}
 				</div>
 			</CardHeader>
-			<CardContent className="px-4 pt-0">
+			<CardContent className="px-3 pt-0 sm:px-4">
 				<p className="text-base text-foreground leading-relaxed">
 					{message.message}
 				</p>

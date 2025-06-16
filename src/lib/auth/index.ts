@@ -1,7 +1,10 @@
 import { env } from "cloudflare:workers";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { verificationCodeEmail } from "@/lib/auth/email-templates";
+import {
+	deleteAccountEmail,
+	verificationCodeEmail,
+} from "@/lib/auth/email-templates";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP } from "better-auth/plugins";
@@ -18,6 +21,20 @@ export const auth = betterAuth({
 		cookieCache: {
 			enabled: true,
 			maxAge: 5 * 60,
+		},
+	},
+	user: {
+		deleteUser: {
+			enabled: true,
+			sendDeleteAccountVerification: async ({ user, url, token }) => {
+				const resend = new Resend(env.RESEND_API_KEY as string);
+				await resend.emails.send({
+					from: `${env.APP_NAME} <${env.RESEND_FROM_EMAIL}>`,
+					to: user.email,
+					subject: "Confirm Account Deletion",
+					html: deleteAccountEmail(url, token),
+				});
+			},
 		},
 	},
 	socialProviders: {

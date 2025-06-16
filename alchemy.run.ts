@@ -9,8 +9,8 @@ import {
 const APP_NAME = "red-cloud";
 
 const app = await alchemy(APP_NAME, {
-	phase: process.argv[2] === "destroy" ? "destroy" : "up",
-	stage: process.argv[3],
+	phase: process.argv.includes("destroy") ? "destroy" : "up",
+	stage: process.env.ALCHEMY_STAGE || "dev",
 	quiet: process.argv.includes("--quiet"),
 	password: process.env.SECRET_ALCHEMY_PASSPHRASE,
 });

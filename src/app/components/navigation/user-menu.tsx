@@ -17,17 +17,16 @@ import {
 	DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
 import { useSession } from "@/app/hooks/use-session";
-import { getUserDisplayName, getUserInitials } from "@/lib/utils/user-utils";
+import {
+	getAvatarUrl,
+	getUserDisplayName,
+	getUserInitials,
+} from "@/lib/utils/user-utils";
 import type { AppContext } from "@/types/app";
 import { UserCircle } from "lucide-react";
 
 interface UserMenuProps {
 	ctx: AppContext;
-}
-
-function getAvatarUrl(imagePath: string | null): string | null {
-	if (!imagePath) return null;
-	return `/r2/avatars/${imagePath.replace("avatars/", "")}`;
 }
 
 export function UserMenu({ ctx }: UserMenuProps) {

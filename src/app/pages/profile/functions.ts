@@ -12,6 +12,24 @@ import {
 import { eq } from "drizzle-orm";
 import { requestInfo } from "rwsdk/worker";
 
+export async function getUserProfile(userId: string) {
+	try {
+		const userRecord = await db
+			.select()
+			.from(user)
+			.where(eq(user.id, userId))
+			.limit(1);
+
+		if (userRecord.length === 0) {
+			throw new Error("User not found");
+		}
+
+		return userRecord[0];
+	} catch (error) {
+		throw new Error("Failed to fetch user profile");
+	}
+}
+
 // Server Functions
 export async function updateProfile(formData: FormData) {
 	try {
@@ -185,8 +203,12 @@ export async function removeAvatar() {
 
 		const userRecord = currentUser[0];
 
-		// Delete avatar file from R2 storage
-		if (userRecord.image) {
+		// Delete avatar file from R2 storage (only if it's stored in R2, not a social provider URL)
+		if (
+			userRecord.image &&
+			!userRecord.image.startsWith("http://") &&
+			!userRecord.image.startsWith("https://")
+		) {
 			try {
 				await env.AVATARS_BUCKET.delete(userRecord.image);
 			} catch (error) {

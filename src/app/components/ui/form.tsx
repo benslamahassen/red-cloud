@@ -1,4 +1,4 @@
-import { Slot } from "@radix-ui/react-slot";
+import { Slot as SlotPrimitive } from "radix-ui";
 import * as React from "react";
 
 import { Label } from "@/app/components/ui/label";
@@ -39,8 +39,8 @@ function FormLabel({
 function FormControl({
 	className,
 	...props
-}: React.ComponentProps<typeof Slot>) {
-	return <Slot className={className} {...props} />;
+}: React.ComponentProps<typeof SlotPrimitive.Slot>) {
+	return <SlotPrimitive.Slot className={className} {...props} />;
 }
 
 // Simple form description

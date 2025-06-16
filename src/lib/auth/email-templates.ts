@@ -50,3 +50,46 @@ export const verificationCodeEmail = (otp: string) => `
 </body>
 </html>
 `;
+
+export const deleteAccountEmail = (url: string, token: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account Verification</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Hi!</h2>
+        <p>We received a request to delete your account. To confirm this action, please click the button below:</p>
+        <a href="${url}?token=${token}" class="button">Delete Account</a>
+        <p>If you didn't request this action, you can safely ignore this email.</p>
+        <div class="footer">
+            <p>Best regards,<br>Better ☁️</p>
+        </div>
+    </div>
+</body>
+</html>
+`;
