@@ -196,13 +196,11 @@ const createSessionStore = (env: WorkerEnv): SessionStore => ({
 	async updateUser(
 		request: Request,
 		userData: User,
-		forceRefresh?: boolean,
 	): Promise<void> {
 		if (process.env.NODE_ENV === "development") {
 			console.log("🔄 [Session Update] Attempting to update user in session:", {
 				userId: userData.id,
 				userName: userData.name,
-				forceRefresh,
 			});
 		}
 
@@ -258,10 +256,6 @@ export const setupSessionStore = (env: WorkerEnv): SessionStore => {
 	return sessionStore;
 };
 
-export const isSessionStoreInitialized = (): boolean => {
-	return sessionStore !== null;
-};
-
 export const getSessionStore = (): SessionStore => {
 	if (!sessionStore) {
 		throw new Error(
@@ -270,6 +264,3 @@ export const getSessionStore = (): SessionStore => {
 	}
 	return sessionStore;
 };
-
-// Export the sessionStore instance for direct use
-export { sessionStore };

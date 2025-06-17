@@ -74,10 +74,10 @@ export async function updateProfile(formData: FormData) {
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
 
-		// Update session with fresh user data (force refresh to ensure immediate update)
+		// Update session with fresh user data
 		if (updatedUser) {
 			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser, true);
+			await sessionStore.updateUser(request, updatedUser);
 		}
 
 		// Return structured success response
@@ -153,10 +153,10 @@ export async function uploadAvatar(formData: FormData) {
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
 
-		// Update session with fresh user data (force refresh to ensure immediate update)
+		// Update session with fresh user data
 		if (updatedUser) {
 			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser, true);
+			await sessionStore.updateUser(request, updatedUser);
 		}
 
 		// Return structured success response
@@ -233,10 +233,10 @@ export async function removeAvatar() {
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
 
-		// Update session with fresh user data (force refresh to ensure immediate update)
+		// Update session with fresh user data
 		if (updatedUser) {
 			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser, true);
+			await sessionStore.updateUser(request, updatedUser);
 		}
 
 		// Return structured success response

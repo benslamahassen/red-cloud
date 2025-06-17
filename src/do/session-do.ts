@@ -114,42 +114,4 @@ export class SessionDurableObject extends DurableObject {
 		}
 	}
 
-	// Additional utility method to check session validity without updating access time
-	async isSessionValid(): Promise<boolean> {
-		try {
-			const session = await this.ctx.storage.get<SessionData>("session");
-			if (!session) return false;
-			return session.createdAt + this.MAX_SESSION_DURATION >= Date.now();
-		} catch (error) {
-			console.error("Failed to check session validity:", error);
-			return false;
-		}
-	}
-
-	// Method to get session info without updating access time (for debugging/monitoring)
-	async getSessionInfo(): Promise<{
-		exists: boolean;
-		createdAt?: number;
-		lastAccessed?: number;
-		userId?: string | null;
-		hasUser?: boolean;
-	}> {
-		try {
-			const session = await this.ctx.storage.get<SessionData>("session");
-			if (!session) {
-				return { exists: false };
-			}
-
-			return {
-				exists: true,
-				createdAt: session.createdAt,
-				lastAccessed: session.lastAccessed,
-				userId: session.userId,
-				hasUser: !!session.user,
-			};
-		} catch (error) {
-			console.error("Failed to get session info:", error);
-			return { exists: false };
-		}
-	}
 }

@@ -18,6 +18,5 @@ export interface SessionStore {
 	updateUser: (
 		request: Request,
 		user: User,
-		forceRefresh?: boolean,
 	) => Promise<void>;
 }

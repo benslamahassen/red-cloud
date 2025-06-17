@@ -9,7 +9,6 @@ export interface UseSessionReturn {
 
 export interface SessionRefreshResponse {
 	user?: User;
-	error?: string;
 }
 
 export interface SessionContextType {
