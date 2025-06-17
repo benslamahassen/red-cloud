@@ -60,7 +60,7 @@ export const site = await Website("site", {
 		GITHUB_CLIENT_SECRET: alchemy.secret(process.env.GITHUB_CLIENT_SECRET),
 		CLOUDFLARE_ACCOUNT_ID: alchemy.secret(process.env.CLOUDFLARE_ACCOUNT_ID),
 		CLOUDFLARE_DATABASE_ID: alchemy.secret(process.env.CLOUDFLARE_DATABASE_ID),
-		CLOUDFLARE_D1_TOKEN: alchemy.secret(process.env.CLOUDFLARE_D1_TOKEN),
+		CLOUDFLARE_API_TOKEN: alchemy.secret(process.env.CLOUDFLARE_API_TOKEN),
 		APP_NAME: APP_NAME,
 	},
 });
