@@ -5,9 +5,6 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "binding": "ASSETS", "directory": "dist/client" },
   "vars": { "APP_NAME": "red-cloud" },
-  "durable_objects": {
-    "bindings": [{ "name": "SESSION_DO", "class_name": "SessionDurableObject" }]
-  },
   "r2_buckets": [
     { "binding": "AVATARS_BUCKET", "bucket_name": "red-cloud-avatars" }
   ],
@@ -17,13 +14,6 @@
       "database_id": "5b00e298-5a3c-42af-8db7-fb72d6eb9110",
       "database_name": "red-cloud-db",
       "migrations_dir": "src/db/migrations"
-    }
-  ],
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": ["SessionDurableObject"],
-      "new_classes": []
     }
   ]
 }

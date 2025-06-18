@@ -7,7 +7,7 @@ export function AppLayout({ children, requestInfo }: LayoutProps) {
 	const ctx = requestInfo?.ctx;
 
 	return (
-		<ClientProviders initialUser={ctx?.user}>
+		<ClientProviders>
 			<div className="min-h-screen bg-background">
 				<header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 dark:bg-background/50">
 					<div className="container mx-auto flex h-16 items-center justify-between px-6">

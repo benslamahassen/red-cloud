@@ -3,9 +3,10 @@
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
 import { setupAuthClient } from "@/lib/auth/auth-client";
-import { Monitor, Smartphone, Tablet } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { Laptop, Loader2, Monitor, Smartphone, Tablet } from "lucide-react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { UAParser } from "ua-parser-js";
 
 interface SessionData {
 	id: string;
@@ -18,201 +19,164 @@ interface SessionData {
 	userId: string;
 }
 
+interface CurrentSession {
+	session?: {
+		id: string;
+		token: string;
+		userId: string;
+		expiresAt: Date;
+		ipAddress?: string | null;
+		userAgent?: string | null;
+	};
+	user?: {
+		id: string;
+		name: string | null;
+		email: string;
+		emailVerified: boolean | null;
+		image?: string | null;
+		createdAt: Date | null;
+		updatedAt: Date | null;
+	};
+}
+
 interface SessionManagerProps {
 	authUrl: string;
+	currentSession: CurrentSession | null;
+	activeSessions: SessionData[];
 }
 
 function getDeviceIcon(userAgent?: string | null) {
-	if (!userAgent) return <Monitor className="h-3 w-3" />;
+	if (!userAgent) return <Monitor className="h-4 w-4" />;
 
-	const ua = userAgent.toLowerCase();
-	if (
-		ua.includes("mobile") ||
-		ua.includes("android") ||
-		ua.includes("iphone")
-	) {
-		return <Smartphone className="h-3 w-3" />;
+	const parser = new UAParser(userAgent);
+	const device = parser.getDevice();
+
+	if (device.type === "mobile") {
+		return <Smartphone className="h-4 w-4" />;
 	}
-	if (ua.includes("tablet") || ua.includes("ipad")) {
-		return <Tablet className="h-3 w-3" />;
+	if (device.type === "tablet") {
+		return <Tablet className="h-4 w-4" />;
 	}
-	return <Monitor className="h-3 w-3" />;
+	return <Laptop className="h-4 w-4" />;
 }
 
 function getDeviceInfo(userAgent?: string | null): string {
 	if (!userAgent) return "Unknown Device";
 
-	// Extract browser info
-	let browser = "Unknown Browser";
-	if (userAgent.includes("Chrome")) browser = "Chrome";
-	else if (userAgent.includes("Firefox")) browser = "Firefox";
-	else if (userAgent.includes("Safari")) browser = "Safari";
-	else if (userAgent.includes("Edge")) browser = "Edge";
+	const parser = new UAParser(userAgent);
+	const browser = parser.getBrowser().name || "Unknown Browser";
+	const os = parser.getOS().name || "Unknown OS";
 
-	// Extract OS info
-	let os = "Unknown OS";
-	if (
-		userAgent.includes("iPhone") ||
-		userAgent.includes("iPad") ||
-		userAgent.includes("iPod") ||
-		userAgent.includes("iOS")
-	)
-		os = "iOS";
-	else if (userAgent.includes("Android")) os = "Android";
-	else if (userAgent.includes("Windows")) os = "Windows";
-	else if (userAgent.includes("Mac")) os = "macOS";
-	else if (userAgent.includes("Linux")) os = "Linux";
-
-	return `${browser} on ${os}`;
+	return `${browser}, ${os}`;
 }
 
 function isCurrentSession(
 	session: SessionData,
-	currentSessionToken?: string,
+	currentSession: CurrentSession | null,
 ): boolean {
-	return session.token === currentSessionToken;
+	return session.token === currentSession?.session?.token;
 }
 
-export function SessionManager({ authUrl }: SessionManagerProps) {
-	const [sessions, setSessions] = useState<SessionData[]>([]);
-	const [currentSessionToken, setCurrentSessionToken] = useState<string>();
-	const [isLoading, setIsLoading] = useState(true);
+export function SessionManager({
+	authUrl,
+	currentSession,
+	activeSessions,
+}: SessionManagerProps) {
+	const [sessions, setSessions] = useState<SessionData[]>(activeSessions);
+	const [isTerminating, setIsTerminating] = useState<string>();
 	const [isPending, startTransition] = useTransition();
 
 	const authClient = setupAuthClient(authUrl);
 
-	// Load sessions on component mount
-	useEffect(() => {
-		loadSessions();
-	}, []);
+	const removeActiveSession = (sessionId: string) =>
+		setSessions(sessions.filter((session) => session.id !== sessionId));
 
-	const loadSessions = async () => {
-		try {
-			setIsLoading(true);
-
-			// Get current session to identify which one is active
-			const { data: currentSession } = await authClient.getSession();
-
-			let currentToken: string | undefined;
-			if (currentSession?.session) {
-				currentToken = currentSession.session.token;
-				setCurrentSessionToken(currentToken);
-			}
-
-			// List all sessions
-			const { data: allSessions, error } = await authClient.listSessions();
-
-			if (error) {
-				console.error("Error listing sessions:", error);
-				toast.error("Failed to load sessions");
-				// Fallback to current session if available
-				if (currentSession?.session) {
-					setSessions([currentSession.session]);
-				} else {
-					setSessions([]);
-				}
-			} else if (allSessions && Array.isArray(allSessions)) {
-				setSessions(allSessions);
-			} else {
-				// If API fails but we have current session, show at least that
-				if (currentSession?.session) {
-					setSessions([currentSession.session]);
-				} else {
-					setSessions([]);
-				}
-			}
-		} catch (error) {
-			console.error("Error loading sessions:", error);
-			toast.error("Failed to load sessions");
-
-			// Try to show current session even if API fails
-			try {
-				const { data: currentSession } = await authClient.getSession();
-				if (currentSession?.session) {
-					setSessions([currentSession.session]);
-					setCurrentSessionToken(currentSession.session.token);
-				} else {
-					setSessions([]);
-				}
-			} catch (fallbackError) {
-				console.error("Fallback error:", fallbackError);
-				setSessions([]);
-			}
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	const handleSignOut = (sessionToken: string) => {
+	const handleSignOut = (session: SessionData) => {
 		startTransition(async () => {
 			try {
-				const { error } = await authClient.revokeSession({
-					token: sessionToken,
-				});
+				setIsTerminating(session.id);
+				const isCurrent = isCurrentSession(session, currentSession);
 
-				if (error) {
-					console.error("Error revoking session:", error);
-					toast.error("Failed to sign out");
+				if (isCurrent) {
+					// For current session, use signOut to properly clear cookies and redirect
+					await authClient.signOut({
+						fetchOptions: {
+							onSuccess: () => {
+								toast.success("Signed out successfully");
+								window.location.href = "/sign-in";
+							},
+							onError: () => {
+								toast.error("Failed to sign out");
+								setIsTerminating(undefined);
+							},
+						},
+					});
 				} else {
-					toast.success("Signed out successfully");
-					// Reload sessions to reflect changes
-					await loadSessions();
+					// For other sessions, use revokeSession
+					const res = await authClient.revokeSession({
+						token: session.token,
+					});
+
+					if (res?.error) {
+						toast.error(res.error.message || "Failed to revoke session");
+					} else {
+						toast.success("Session terminated successfully");
+						removeActiveSession(session.id);
+					}
 				}
+
+				setIsTerminating(undefined);
 			} catch (error) {
 				console.error("Error revoking session:", error);
-				toast.error("Failed to sign out");
+				toast.error("Failed to terminate session");
+				setIsTerminating(undefined);
 			}
 		});
 	};
 
-	if (isLoading) {
-		return (
-			<div className="space-y-3">
-				<h3 className="font-medium text-sm">Active Sessions</h3>
-				<p className="text-muted-foreground text-xs">Loading sessions...</p>
-			</div>
-		);
-	}
-
 	return (
-		<div className="space-y-3">
-			<h3 className="font-medium text-sm">Active Sessions</h3>
+		<div className="flex w-max flex-col gap-1 border-l-2 px-2">
+			<p className="font-medium text-xs">Active Sessions</p>
 			{sessions.length === 0 ? (
 				<p className="text-muted-foreground text-xs">
 					No active sessions found.
 				</p>
 			) : (
-				<div className="space-y-2">
-					{sessions.map((session) => {
-						const isCurrent = isCurrentSession(session, currentSessionToken);
+				sessions
+					.filter((session) => session.userAgent)
+					.map((session) => {
+						const isCurrent = isCurrentSession(session, currentSession);
 
 						return (
-							<div key={session.id} className="flex items-center space-x-2">
-								{getDeviceIcon(session.userAgent)}
-								<div className="flex items-center space-x-2">
-									<span className="text-xs">
-										{getDeviceInfo(session.userAgent)}
-									</span>
-									{!isCurrent && (
-										<button
-											type="button"
-											onClick={() => handleSignOut(session.token)}
-											disabled={isPending}
-											className="text-destructive text-xs underline hover:text-destructive/90 disabled:opacity-50"
-										>
-											Sign Out
-										</button>
-									)}
+							<div key={session.id}>
+								<div className="flex items-center gap-2 font-medium text-black text-sm dark:text-white">
+									{getDeviceIcon(session.userAgent)}
+									{getDeviceInfo(session.userAgent)}
 									{isCurrent && (
 										<Badge variant="default" className="text-xs">
 											Current
 										</Badge>
 									)}
+									<Button
+										type="button"
+										variant="link"
+										size="sm"
+										className="text-red-500 text-xs"
+										onClick={() => handleSignOut(session)}
+										disabled={isPending}
+									>
+										{isTerminating === session.id ? (
+											<Loader2 size={15} className="animate-spin" />
+										) : isCurrent ? (
+											"Sign Out"
+										) : (
+											"Terminate"
+										)}
+									</Button>
 								</div>
 							</div>
 						);
-					})}
-				</div>
+					})
 			)}
 		</div>
 	);

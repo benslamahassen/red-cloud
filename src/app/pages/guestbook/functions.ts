@@ -154,13 +154,6 @@ export async function completeOnboarding(formData: FormData) {
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
 
-		// Update session with fresh user data
-		if (updatedUser) {
-			const { getSessionStore } = await import("@/lib/session/store");
-			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser);
-		}
-
 		return {
 			success: true,
 			message: "Profile completed successfully!",

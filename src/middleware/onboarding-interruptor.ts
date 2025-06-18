@@ -1,3 +1,4 @@
+import { auth } from "@/lib/auth";
 import type { AppContext } from "@/types/app";
 
 /**
@@ -16,27 +17,26 @@ export const requireOnboarding = async ({
 
 	// Check if user is authenticated but missing profile data (name)
 	if (ctx.user && !ctx.user.name) {
-		// Double-check with fresh data from the database to avoid stale session data
+		// Use better-auth API to get fresh session data (already loaded in app middleware)
+		// Since app middleware runs before this interruptor, ctx.user should already be fresh
+		// But we can double-check by refetching if needed
 		try {
-			const { db } = await import("@/db");
-			const { user } = await import("@/db/schema/auth-schema");
-			const { eq } = await import("drizzle-orm");
+			const sessionResult = await auth.api.getSession({
+				headers: request.headers,
+				query: {
+					disableCookieCache: true,
+				},
+			});
 
-			const freshUser = await db
-				.select({ name: user.name })
-				.from(user)
-				.where(eq(user.id, ctx.user.id))
-				.get();
-
-			// Only show onboarding if the user truly doesn't have a name in the database
-			if (!freshUser?.name) {
+			// Only show onboarding if the user truly doesn't have a name
+			if (sessionResult?.user && !sessionResult.user.name) {
 				ctx.needsOnboarding = true;
 			}
 		} catch (error) {
 			if (process.env.NODE_ENV === "development") {
 				console.error("Error checking user onboarding status:", error);
 			}
-			// Fallback to session data if database check fails
+			// Fallback to session data if API check fails
 			ctx.needsOnboarding = true;
 		}
 	}

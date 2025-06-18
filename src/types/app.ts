@@ -6,6 +6,16 @@ import type { User } from "@/db/schema/auth-schema";
  */
 export type AppContext = {
 	user: User | undefined;
+	session?: {
+		id: string;
+		token: string;
+		userId: string;
+		expiresAt: Date;
+		createdAt: Date;
+		updatedAt: Date;
+		ipAddress?: string | null;
+		userAgent?: string | null;
+	};
 	authUrl: string;
 	needsOnboarding?: boolean;
 };

@@ -1,10 +1,11 @@
+import { LogoutButton } from "@/app/components/navigation/sign-out-button";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Separator } from "@/app/components/ui/separator";
+import { auth } from "@/lib/auth";
 import type { RequestInfo } from "rwsdk/worker";
 import { DeleteAccountButton } from "./components/delete-account-button";
 import { ProfileInfo } from "./components/profile-info";
 import { SessionManager } from "./components/session-manager";
-import { SignOutButton } from "./components/sign-out-button";
 import { getUserProfile } from "./functions";
 
 export async function ProfilePage({ ctx, request }: RequestInfo) {
@@ -12,8 +13,23 @@ export async function ProfilePage({ ctx, request }: RequestInfo) {
 		throw new Error("User not authenticated");
 	}
 
-	// Fetch user profile data on server-side
-	const userProfile = await getUserProfile(ctx.user.id as string);
+	// Fetch user profile and session data server-side with fresh data
+	const [userProfile, currentSession, activeSessions] = await Promise.all([
+		getUserProfile(ctx.user.id as string),
+		auth.api
+			.getSession({
+				headers: request.headers,
+				query: {
+					disableCookieCache: true,
+				},
+			})
+			.catch(() => null),
+		auth.api
+			.listSessions({
+				headers: request.headers,
+			})
+			.catch(() => []),
+	]);
 
 	// Get the base URL for the auth client
 	const url = new URL(request.url);
@@ -40,13 +56,24 @@ export async function ProfilePage({ ctx, request }: RequestInfo) {
 						<Separator />
 
 						{/* Active Sessions */}
-						<SessionManager authUrl={authUrl} />
+						<SessionManager
+							authUrl={authUrl}
+							currentSession={currentSession}
+							activeSessions={
+								Array.isArray(activeSessions) ? activeSessions : []
+							}
+						/>
 
 						<Separator />
 
 						{/* Action Buttons */}
 						<div className="flex flex-col space-y-3 sm:flex-row sm:justify-between sm:space-x-3 sm:space-y-0">
-							<SignOutButton authUrl={authUrl} />
+							<LogoutButton
+								authUrl={authUrl}
+								variant="outline"
+								redirectTo="/"
+								className="flex w-full items-center justify-center space-x-2 text-sm sm:w-auto"
+							/>
 							<DeleteAccountButton authUrl={authUrl} />
 						</div>
 					</CardContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogoutButton } from "@/app/components/navigation/logout-button";
+import { LogoutButton } from "@/app/components/navigation/sign-out-button";
 import {
 	Avatar,
 	AvatarFallback,
@@ -16,7 +16,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
-import { useSession } from "@/app/hooks/use-session";
 import {
 	getAvatarUrl,
 	getUserDisplayName,
@@ -30,8 +29,8 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ ctx }: UserMenuProps) {
-	// Use the enhanced session hook for user data
-	const { user: currentUser } = useSession();
+	// Use user from context (populated by better-auth middleware)
+	const currentUser = ctx.user;
 
 	if (!currentUser) {
 		return (

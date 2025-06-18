@@ -14,7 +14,7 @@ This repo contain a fullstack example to build on Cloudflare with the following 
 ## Resources
 
 - D1 (as main DB)
-- Durable Objects (for session management)
+- R2 (for avatar/file storage)
 - Website running on workers using RedwoodSDK
 
 All the required resources are configured via Alchmey in alchemy.run.ts
@@ -75,7 +75,7 @@ This example includes a complete authentication system with:
 
 - OTP for signup and login (with email integration via Resend)
 - Social authentication (Google & GitHub OAuth)
-- Advanced session management using Durable Objects with intelligent caching
+- Native better-auth session management with database persistence
 - Protected routes with interruptor-based authentication
 - Multi-device session support with proper logout functionality
 
@@ -116,16 +116,17 @@ This project has evolved significantly from a basic implementation to a more pro
 
 ### 🏗️ Session Management Overhaul
 
-We've completely redesigned the session management system for better performance, reliability, and dx:
+We've simplified and optimized the session management system to use only better-auth's native capabilities:
 
-- **Migrated from KV to Durable Objects**: Replaced KV secondary storage with Durable Objects for session persistence, providing better consistency and state management
-- **Intelligent Caching Strategy**: Implemented a 30-second cache refresh mechanism with `SESSION_CACHE_REFRESH_MS` constant to balance performance and data freshness
-- **Enhanced Error Handling**: Proper error propagation using RedwoodSDK's `ErrorResponse` type for consistent error handling across the application
-- **Session Lifecycle Management**: Complete session creation, updates, and revocation with proper expiration handling
+- **Native Better-Auth Integration**: Removed custom session management in favor of better-auth's built-in database persistence
+- **Server-Side Session Fetching**: Uses `auth.api.getSession()` with `disableCookieCache: true` for fresh session data
+- **SSR Optimization**: Pre-fetches session data on the server and passes to client components as props
+- **Efficient Client Actions**: Uses `authClient.signOut()` and `authClient.revokeSession()` for session termination
+- **No Custom Caching**: Relies on better-auth's native cookie cache with database fallback
 
 **Key Files:**
-- `src/lib/session/store.ts` - Centralized session management with better-auth integration (275 lines)
-- `src/lib/session/session-do.ts` - Durable Object implementation for session persistence (156 lines)
+- `src/middleware/app-middleware.ts` - Server-side session loading using better-auth APIs
+- `src/app/pages/profile/components/session-manager.tsx` - Multi-device session management with native better-auth actions
 
 ### 🎨 Theme System
 
@@ -175,8 +176,6 @@ src/app/pages/
 ```
 src/lib/
 ├── auth/ - Better-auth config and utilities
-├── session/ - Durable Object session management
-├── middleware/ - Request middleware implementations
 ├── utils/ - Centralized utility functions and constants
 └── validators/ - Zod validation schemas by feature
 ```
@@ -229,10 +228,8 @@ red-cloud/
 │  │  │  └─ landing.tsx          # Landing page component
 │  │  └─ providers/              # React context providers
 │  ├─ db/                        # Database instance/schema/migrations
-│  ├─ do/                        # Durable Object class files
 │  ├─ lib/                       # Shared/auxiliary application logic
 │  │  ├─ auth/                   # Better-Auth config
-│  │  ├─ session/                # Session management DO
 │  │  ├─ utils/                  # Utility functions, constants, etc
 │  │  └─ validators/             # Zod validation schemas
 │  ├─ middleware/                # Request middleware and rwsdk interruptors

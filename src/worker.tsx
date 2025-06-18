@@ -18,9 +18,6 @@ import { apiRoutes } from "@/api/routes";
 import { appMiddleware } from "@/middleware/app-middleware";
 import { redirectIfAuth, requireAuth } from "@/middleware/auth-interruptors";
 
-// Export the durable object for Cloudflare runtime
-export { SessionDurableObject } from "@/do/session-do";
-
 export default defineApp([
 	setCommonHeaders(),
 

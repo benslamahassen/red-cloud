@@ -1,9 +1,6 @@
-import { env } from "cloudflare:workers";
-import type { RouteMiddleware } from "rwsdk/router";
-
-import { setupSessionStore } from "@/lib/session/store";
+import { auth } from "@/lib/auth";
 import { requireOnboarding } from "@/middleware/onboarding-interruptor";
-import { sessionMiddleware } from "@/middleware/session-middleware";
+import type { RouteMiddleware } from "rwsdk/router";
 
 /**
  * Central application middleware that runs on every request.
@@ -13,11 +10,25 @@ export const appMiddleware: RouteMiddleware = async ({ ctx, request }) => {
 	const url = new URL(request.url);
 	ctx.authUrl = url.origin;
 
-	// Setup session store with environment
-	setupSessionStore(env);
+	// Get session using better-auth native API with fresh data
+	try {
+		const sessionResult = await auth.api.getSession({
+			headers: request.headers,
+			query: {
+				disableCookieCache: true,
+			},
+		});
 
-	// Use unified session middleware
-	await sessionMiddleware({ ctx, request });
+		if (sessionResult?.session && sessionResult?.user) {
+			ctx.session = sessionResult.session;
+			ctx.user = {
+				...sessionResult.user,
+				image: sessionResult.user.image ?? null,
+			};
+		}
+	} catch (error) {
+		console.warn("Failed to get session:", error);
+	}
 
 	// Check if user needs onboarding
 	await requireOnboarding({ ctx, request });

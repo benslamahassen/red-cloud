@@ -10,8 +10,6 @@ import {
 } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { useSession } from "@/app/hooks/use-session";
-import type { User } from "@/db/schema/auth-schema";
 import { Pencil, Trash2, Upload } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -35,7 +33,6 @@ interface EditProfileDialogProps {
 }
 
 export function EditProfileDialog({ user }: EditProfileDialogProps) {
-	const { refreshSession, updateUser } = useSession();
 	const [isOpen, setIsOpen] = useState(false);
 	const [formData, setFormData] = useState({
 		name: user.name || "",
@@ -54,20 +51,8 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 
 			if (result.success) {
 				toast.success(result.message);
-
-				// Update the user in the session context immediately
-				const updatedUser: User = {
-					...user,
-					name: formData.name,
-					emailVerified: user.emailVerified ?? false,
-					createdAt: user.createdAt ?? new Date(),
-					updatedAt: user.updatedAt ?? new Date(),
-				};
-				updateUser(updatedUser);
-
-				// Also refresh from server to ensure we have the latest data
-				await refreshSession();
-				setIsOpen(false);
+				// Refresh the page to get updated user data
+				window.location.reload();
 			} else {
 				toast.error(result.error);
 
@@ -103,7 +88,6 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 
 			if (result.success) {
 				toast.success(result.message);
-				await refreshSession();
 				window.location.reload();
 			} else {
 				toast.error(result.error);
@@ -126,7 +110,6 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 
 			if (result.success) {
 				toast.success(result.message);
-				await refreshSession();
 				window.location.reload();
 			} else {
 				toast.error(result.error);

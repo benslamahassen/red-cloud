@@ -4,7 +4,6 @@ import { env } from "cloudflare:workers";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
 import { auth } from "@/lib/auth";
-import { getSessionStore } from "@/lib/session/store";
 import {
 	avatarUploadSchema,
 	updateProfileSchema,
@@ -73,12 +72,6 @@ export async function updateProfile(formData: FormData) {
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
-
-		// Update session with fresh user data
-		if (updatedUser) {
-			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser);
-		}
 
 		// Return structured success response
 		return {
@@ -152,12 +145,6 @@ export async function uploadAvatar(formData: FormData) {
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
-
-		// Update session with fresh user data
-		if (updatedUser) {
-			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser);
-		}
 
 		// Return structured success response
 		return {
@@ -233,12 +220,6 @@ export async function removeAvatar() {
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
 
-		// Update session with fresh user data
-		if (updatedUser) {
-			const sessionStore = getSessionStore();
-			await sessionStore.updateUser(request, updatedUser);
-		}
-
 		// Return structured success response
 		return {
 			success: true,
@@ -250,6 +231,79 @@ export async function removeAvatar() {
 		return {
 			success: false,
 			error: "Unable to remove avatar. Please try again.",
+		};
+	}
+}
+
+export async function revokeSession(sessionToken: string) {
+	try {
+		const { ctx, request } = requestInfo;
+
+		if (!ctx.user) {
+			return {
+				success: false,
+				error: "Authentication required",
+			};
+		}
+
+		// Use the simplified better-auth API
+		const result = await auth.api.revokeSession({
+			headers: request.headers,
+			body: { token: sessionToken },
+		});
+
+		if (!result) {
+			return {
+				success: false,
+				error: "Failed to revoke session",
+			};
+		}
+
+		return {
+			success: true,
+			message: "Session revoked successfully",
+		};
+	} catch (error) {
+		console.error("Error revoking session:", error);
+		return {
+			success: false,
+			error: "Failed to revoke session",
+		};
+	}
+}
+
+export async function listSessions() {
+	try {
+		const { ctx, request } = requestInfo;
+
+		if (!ctx.user) {
+			return {
+				success: false,
+				error: "Authentication required",
+			};
+		}
+
+		// Use the simplified better-auth API
+		const sessions = await auth.api.listSessions({
+			headers: request.headers,
+		});
+
+		if (!Array.isArray(sessions)) {
+			return {
+				success: false,
+				error: "Failed to list sessions",
+			};
+		}
+
+		return {
+			success: true,
+			sessions: sessions,
+		};
+	} catch (error) {
+		console.error("Error listing sessions:", error);
+		return {
+			success: false,
+			error: "Failed to list sessions",
 		};
 	}
 }

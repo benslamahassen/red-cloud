@@ -2,15 +2,24 @@
 
 import { Button } from "@/app/components/ui/button";
 import { setupAuthClient } from "@/lib/auth/auth-client";
-import { LogOut } from "lucide-react";
+import { link } from "@/lib/utils/links";
+import { LogOutIcon } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-interface SignOutButtonProps {
+interface LogoutButtonProps {
+	className?: string;
 	authUrl: string;
+	variant?: "ghost" | "outline";
+	redirectTo?: string;
 }
 
-export function SignOutButton({ authUrl }: SignOutButtonProps) {
+export function LogoutButton({
+	className,
+	authUrl,
+	variant = "ghost",
+	redirectTo,
+}: LogoutButtonProps) {
 	const [isPending, startTransition] = useTransition();
 	const authClient = setupAuthClient(authUrl);
 
@@ -24,8 +33,8 @@ export function SignOutButton({ authUrl }: SignOutButtonProps) {
 					toast.error("Failed to sign out");
 				} else {
 					toast.success("Signed out successfully");
-					// Redirect to home page after successful sign out
-					window.location.href = "/";
+					// Use provided redirect or default to sign-in
+					window.location.href = redirectTo || link("/sign-in");
 				}
 			} catch (error) {
 				console.error("Error signing out:", error);
@@ -36,13 +45,13 @@ export function SignOutButton({ authUrl }: SignOutButtonProps) {
 
 	return (
 		<Button
-			variant="outline"
+			variant={variant}
 			onClick={handleSignOut}
 			disabled={isPending}
-			className="flex w-full items-center justify-center space-x-2 text-sm sm:w-auto"
+			className={className}
 		>
-			<LogOut className="h-4 w-4" />
-			<span>{isPending ? "Signing out..." : "Sign Out"}</span>
+			<LogOutIcon className="mr-2 size-4" />
+			{isPending ? "Signing out..." : "Sign Out"}
 		</Button>
 	);
 }
