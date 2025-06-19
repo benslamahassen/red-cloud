@@ -1,5 +1,5 @@
 import alchemy from "alchemy";
-import { D1Database, R2Bucket, Website } from "alchemy/cloudflare";
+import { D1Database, R2Bucket, Website, DurableObjectNamespace } from "alchemy/cloudflare";
 
 const APP_NAME = "red-cloud";
 
@@ -25,6 +25,10 @@ const avatarsBucket = await R2Bucket("avatars", {
 	adopt: true,
 });
 
+const realtimeDurableObject = new DurableObjectNamespace("realtime", {
+	className: "RealtimeDurableObject",
+});
+
 export const site = await Website("site", {
 	name: `${APP_NAME}`,
 	command: "bun clean && bun run build",
@@ -40,6 +44,7 @@ export const site = await Website("site", {
 	bindings: {
 		DB: db,
 		AVATARS_BUCKET: avatarsBucket,
+		REALTIME_DURABLE_OBJECT: realtimeDurableObject,
 		BETTER_AUTH_SECRET: alchemy.secret(process.env.BETTER_AUTH_SECRET),
 		RESEND_API_KEY: alchemy.secret(process.env.RESEND_API_KEY),
 		RESEND_FROM_EMAIL: alchemy.secret(process.env.RESEND_FROM_EMAIL),

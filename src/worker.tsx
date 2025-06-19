@@ -1,3 +1,4 @@
+import { realtimeRoute } from "rwsdk/realtime/worker";
 import { layout, render, route } from "rwsdk/router";
 import { defineApp } from "rwsdk/worker";
 
@@ -18,7 +19,12 @@ import { apiRoutes } from "@/api/routes";
 import { appMiddleware } from "@/middleware/app-middleware";
 import { redirectIfAuth, requireAuth } from "@/middleware/auth-interruptors";
 
+export { RealtimeDurableObject } from "rwsdk/realtime/durableObject";
+
 export default defineApp([
+	// @ts-expect-error - rwsdk / alchemy type mismatch
+	realtimeRoute((env) => env.REALTIME_DURABLE_OBJECT),
+
 	setCommonHeaders(),
 
 	appMiddleware,

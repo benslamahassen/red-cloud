@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "cloudflare:workers";
 import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
 import { guestbook_message } from "@/db/schema/guestbook-schema";
@@ -8,22 +9,22 @@ import {
 	createMessageSchema,
 } from "@/lib/validators/guestbook";
 import { eq } from "drizzle-orm";
+import { renderRealtimeClients } from "rwsdk/realtime/worker";
 import { requestInfo } from "rwsdk/worker";
 
-export async function createGuestbookMessage(formData: FormData) {
+export async function createGuestbookMessage(data: {
+	name: string;
+	message: string;
+	country: string;
+}) {
 	try {
 		const { ctx } = requestInfo;
 
-		// Extract form data
-		const name = formData.get("name") as string;
-		const message = formData.get("message") as string;
-		const country = formData.get("country") as string;
-
 		// Validate input data
 		const validationResult = createMessageSchema.safeParse({
-			name: name?.trim(),
-			message: message?.trim(),
-			country: country?.trim() || undefined,
+			name: data.name?.trim(),
+			message: data.message?.trim(),
+			country: data.country?.trim() || undefined,
 		});
 
 		if (!validationResult.success) {
@@ -48,6 +49,12 @@ export async function createGuestbookMessage(formData: FormData) {
 				userId: ctx.user?.id || null,
 			})
 			.returning();
+
+		await renderRealtimeClients({
+			// @ts-expect-error - rwsdk / alchemy type mismatch
+			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+			key: "/guestbook",
+		});
 
 		return {
 			success: true,
@@ -100,6 +107,13 @@ export async function deleteGuestbookMessage(messageId: number) {
 		await db
 			.delete(guestbook_message)
 			.where(eq(guestbook_message.id, messageId));
+
+		// Trigger realtime update for all guestbook clients
+		await renderRealtimeClients({
+			// @ts-expect-error - rwsdk / alchemy type mismatch
+			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+			key: "/guestbook",
+		});
 
 		return {
 			success: true,

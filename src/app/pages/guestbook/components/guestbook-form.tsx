@@ -70,16 +70,17 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const form = new FormData();
-
-		// Set form data from React state to ensure processed values are used
-		form.set("name", currentUser?.name || formData.name);
-		form.set("message", formData.message);
-		form.set("country", formData.country); // This will be empty string if "__CLEAR__" was selected
+		// Use plain object instead of FormData
+		const data = {
+			name: currentUser?.name || formData.name,
+			message: formData.message,
+			country: formData.country, // This will be empty string if "__CLEAR__" was selected
+		};
 
 		startTransition(async () => {
 			try {
-				const result = await createGuestbookMessage(form);
+				// Use the cleaned up function
+				const result = await createGuestbookMessage(data);
 
 				if (result.success) {
 					toast.success(result.message || "Message posted successfully!");
@@ -95,6 +96,7 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 					toast.error(result.error || "Failed to post message");
 				}
 			} catch (error) {
+				console.error("Form submission error:", error);
 				toast.error("An unexpected error occurred");
 			}
 		});
