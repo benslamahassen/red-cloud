@@ -1,6 +1,7 @@
+import type { RouteMiddleware } from "rwsdk/router";
+
 import { auth } from "@/lib/auth";
 import { requireOnboarding } from "@/middleware/onboarding-interruptor";
-import type { RouteMiddleware } from "rwsdk/router";
 
 /**
  * Central application middleware that runs on every request.

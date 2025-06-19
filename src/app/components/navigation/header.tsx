@@ -1,5 +1,8 @@
 "use client";
 
+import { ChevronDown, ExternalLink } from "lucide-react";
+import { useState } from "react";
+
 import { ModeToggle } from "@/app/components/navigation/mode-toggle";
 import { UserMenu } from "@/app/components/navigation/user-menu";
 import { Button } from "@/app/components/ui/button";
@@ -10,8 +13,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
 import type { AppContext } from "@/types/app";
-import { ChevronDown, ExternalLink } from "lucide-react";
-import { useState } from "react";
 
 interface HeaderProps {
 	ctx: AppContext;

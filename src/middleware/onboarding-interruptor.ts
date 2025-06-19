@@ -8,7 +8,10 @@ import type { AppContext } from "@/types/app";
 export const requireOnboarding = async ({
 	ctx,
 	request,
-}: { ctx: AppContext; request: Request }) => {
+}: {
+	ctx: AppContext;
+	request: Request;
+}) => {
 	// Skip onboarding check for API routes and auth routes
 	const url = new URL(request.url);
 	if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) {

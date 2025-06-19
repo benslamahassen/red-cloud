@@ -1,12 +1,13 @@
 "use client";
 
-import { Badge } from "@/app/components/ui/badge";
-import { Button } from "@/app/components/ui/button";
-import { setupAuthClient } from "@/lib/auth/auth-client";
 import { Laptop, Loader2, Monitor, Smartphone, Tablet } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { UAParser } from "ua-parser-js";
+
+import { Badge } from "@/app/components/ui/badge";
+import { Button } from "@/app/components/ui/button";
+import { setupAuthClient } from "@/lib/auth/auth-client";
 
 interface SessionData {
 	id: string;

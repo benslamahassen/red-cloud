@@ -1,5 +1,10 @@
 import alchemy from "alchemy";
-import { D1Database, R2Bucket, Website, DurableObjectNamespace } from "alchemy/cloudflare";
+import {
+	D1Database,
+	DurableObjectNamespace,
+	R2Bucket,
+	Website,
+} from "alchemy/cloudflare";
 
 const APP_NAME = "red-cloud";
 

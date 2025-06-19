@@ -1,11 +1,10 @@
+import { EditProfileDialog } from "./edit-profile-dialog";
 import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
 } from "@/app/components/ui/avatar";
 import { getAvatarUrl } from "@/lib/utils/user-utils";
-
-import { EditProfileDialog } from "./edit-profile-dialog";
 
 // Define ProfileInfoProps interface
 interface ProfileInfoProps {

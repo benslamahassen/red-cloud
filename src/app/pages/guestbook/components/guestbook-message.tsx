@@ -1,6 +1,6 @@
+import { DeleteMessageButton } from "./delete-message-button";
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
 import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
-import { DeleteMessageButton } from "./delete-message-button";
 
 interface GuestbookMessageProps {
 	message: GuestBookMessage;

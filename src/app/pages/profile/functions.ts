@@ -1,15 +1,14 @@
 "use server";
 
 import { env } from "cloudflare:workers";
+
+import { eq } from "drizzle-orm";
+import { requestInfo } from "rwsdk/worker";
+
 import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
 import { auth } from "@/lib/auth";
-import {
-	avatarUploadSchema,
-	updateProfileSchema,
-} from "@/lib/validators/profile";
-import { eq } from "drizzle-orm";
-import { requestInfo } from "rwsdk/worker";
+import { updateProfileSchema } from "@/lib/validators/profile";
 
 export async function getUserProfile(userId: string) {
 	try {
@@ -24,15 +23,15 @@ export async function getUserProfile(userId: string) {
 		}
 
 		return userRecord[0];
-	} catch (error) {
+	} catch {
 		throw new Error("Failed to fetch user profile");
 	}
 }
 
 // Server Functions
-export async function updateProfile(formData: FormData) {
+export async function updateProfile(data: { name: string }) {
 	try {
-		const { ctx, request } = requestInfo;
+		const { ctx } = requestInfo;
 
 		if (!ctx.user) {
 			return {
@@ -41,8 +40,8 @@ export async function updateProfile(formData: FormData) {
 			};
 		}
 
-		// Extract form data
-		const name = formData.get("name") as string;
+		// Extract data
+		const name = data.name;
 
 		// Validate form data using Zod schema
 		const validation = updateProfileSchema.safeParse({ name });
@@ -67,7 +66,7 @@ export async function updateProfile(formData: FormData) {
 			.where(eq(user.id, ctx.user.id));
 
 		// Fetch updated user data
-		const [updatedUser] = await db
+		const [_updatedUser] = await db
 			.select()
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
@@ -88,9 +87,14 @@ export async function updateProfile(formData: FormData) {
 	}
 }
 
-export async function uploadAvatar(formData: FormData) {
+export async function uploadAvatar(data: {
+	fileBase64: string;
+	fileName: string;
+	fileType: string;
+	fileSize: number;
+}) {
 	try {
-		const { ctx, request } = requestInfo;
+		const { ctx } = requestInfo;
 
 		if (!ctx.user) {
 			return {
@@ -99,34 +103,48 @@ export async function uploadAvatar(formData: FormData) {
 			};
 		}
 
-		// Extract file from form data
-		const file = formData.get("file") as File;
+		// Extract file data
+		const { fileBase64, fileName, fileType, fileSize } = data;
 
-		if (!file) {
+		if (!fileBase64) {
 			return {
 				success: false,
 				error: "No file provided",
 			};
 		}
 
-		// Validate file using Zod schema
-		const validation = avatarUploadSchema.safeParse({ file });
-		if (!validation.success) {
+		// Validate file data manually (since we can't use Zod with ArrayBuffer)
+		if (fileSize > 5 * 1024 * 1024) {
 			return {
 				success: false,
-				error: validation.error.issues[0].message,
+				error: "File size must be less than 5MB",
 			};
 		}
 
+		if (!["image/jpeg", "image/png", "image/webp"].includes(fileType)) {
+			return {
+				success: false,
+				error: "File must be a JPEG, PNG, or WebP image",
+			};
+		}
+
+		// Convert base64 back to ArrayBuffer for R2 upload
+		const binaryString = atob(fileBase64);
+		const bytes = new Uint8Array(binaryString.length);
+		for (let i = 0; i < binaryString.length; i++) {
+			bytes[i] = binaryString.charCodeAt(i);
+		}
+		const fileBuffer = bytes.buffer;
+
 		// Generate unique filename with timestamp
-		const fileExtension = file.name.split(".").pop();
-		const fileName = `avatar-${ctx.user.id}-${Date.now()}.${fileExtension}`;
-		const r2ObjectKey = `avatars/${fileName}`;
+		const fileExtension = fileName.split(".").pop();
+		const uniqueFileName = `avatar-${ctx.user.id}-${Date.now()}.${fileExtension}`;
+		const r2ObjectKey = `avatars/${uniqueFileName}`;
 
 		// Upload file to R2 storage
-		await env.AVATARS_BUCKET.put(r2ObjectKey, await file.arrayBuffer(), {
+		await env.AVATARS_BUCKET.put(r2ObjectKey, fileBuffer, {
 			httpMetadata: {
-				contentType: file.type,
+				contentType: fileType,
 			},
 		});
 
@@ -140,7 +158,7 @@ export async function uploadAvatar(formData: FormData) {
 			.where(eq(user.id, ctx.user.id));
 
 		// Fetch updated user data
-		const [updatedUser] = await db
+		const [_updatedUser] = await db
 			.select()
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
@@ -164,7 +182,7 @@ export async function uploadAvatar(formData: FormData) {
 
 export async function removeAvatar() {
 	try {
-		const { ctx, request } = requestInfo;
+		const { ctx } = requestInfo;
 
 		if (!ctx.user) {
 			return {
@@ -214,7 +232,7 @@ export async function removeAvatar() {
 			.where(eq(user.id, ctx.user.id));
 
 		// Fetch updated user data
-		const [updatedUser] = await db
+		const [_updatedUser] = await db
 			.select()
 			.from(user)
 			.where(eq(user.id, ctx.user.id))

@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
+
 import { route } from "rwsdk/router";
-import { ErrorResponse } from "rwsdk/worker";
 
 import { auth } from "@/lib/auth";
 

@@ -14,14 +14,19 @@
     ]
   },
   "r2_buckets": [
-    { "binding": "AVATARS_BUCKET", "bucket_name": "red-cloud-avatars" }
+    {
+      "binding": "AVATARS_BUCKET",
+      "bucket_name": "red-cloud-avatars",
+      "preview_bucket_name": "red-cloud-avatars"
+    }
   ],
   "d1_databases": [
     {
       "binding": "DB",
       "database_id": "5b00e298-5a3c-42af-8db7-fb72d6eb9110",
       "database_name": "red-cloud-db",
-      "migrations_dir": "src/db/migrations"
+      "migrations_dir": "src/db/migrations",
+      "preview_database_id": "5b00e298-5a3c-42af-8db7-fb72d6eb9110"
     }
   ],
   "migrations": [

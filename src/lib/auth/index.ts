@@ -1,14 +1,16 @@
 import { env } from "cloudflare:workers";
+
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { emailOTP } from "better-auth/plugins";
+import { Resend } from "resend";
+
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import {
 	deleteAccountEmail,
 	verificationCodeEmail,
 } from "@/lib/auth/email-templates";
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { emailOTP } from "better-auth/plugins";
-import { Resend } from "resend";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {

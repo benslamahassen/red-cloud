@@ -1,6 +1,7 @@
-import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
 import type { RequestInfo } from "rwsdk/worker";
+
 import { GuestbookMessage } from "./guestbook-message";
+import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
 
 interface GuestbookListProps {
 	messagesResult: {

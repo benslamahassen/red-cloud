@@ -1,12 +1,13 @@
-import { LogoutButton } from "@/app/components/navigation/sign-out-button";
-import { Card, CardContent } from "@/app/components/ui/card";
-import { Separator } from "@/app/components/ui/separator";
-import { auth } from "@/lib/auth";
 import type { RequestInfo } from "rwsdk/worker";
+
 import { DeleteAccountButton } from "./components/delete-account-button";
 import { ProfileInfo } from "./components/profile-info";
 import { SessionManager } from "./components/session-manager";
 import { getUserProfile } from "./functions";
+import { LogoutButton } from "@/app/components/navigation/sign-out-button";
+import { Card, CardContent } from "@/app/components/ui/card";
+import { Separator } from "@/app/components/ui/separator";
+import { auth } from "@/lib/auth";
 
 export async function ProfilePage({ ctx, request }: RequestInfo) {
 	if (!ctx.user) {

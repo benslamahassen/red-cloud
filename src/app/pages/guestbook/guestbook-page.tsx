@@ -1,10 +1,11 @@
+import { desc } from "drizzle-orm";
+import type { RequestInfo } from "rwsdk/worker";
+
 import { GuestbookForm } from "@/app/pages/guestbook/components/guestbook-form";
 import { GuestbookList } from "@/app/pages/guestbook/components/guestbook-list";
 import { db } from "@/db";
-import { guestbook_message } from "@/db/schema/guestbook-schema";
 import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
-import { desc } from "drizzle-orm";
-import type { RequestInfo } from "rwsdk/worker";
+import { guestbook_message } from "@/db/schema/guestbook-schema";
 
 // Server function to get all guestbook messages
 async function getAllGuestbookMessages(): Promise<{
@@ -23,7 +24,7 @@ async function getAllGuestbookMessages(): Promise<{
 			success: true,
 			messages,
 		};
-	} catch (error) {
+	} catch {
 		return {
 			success: false,
 			error: "Failed to load messages",

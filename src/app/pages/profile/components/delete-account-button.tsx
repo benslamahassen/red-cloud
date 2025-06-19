@@ -1,5 +1,9 @@
 "use client";
 
+import { Mail, Trash2 } from "lucide-react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+
 import { Button } from "@/app/components/ui/button";
 import {
 	Dialog,
@@ -11,9 +15,6 @@ import {
 	DialogTrigger,
 } from "@/app/components/ui/dialog";
 import { setupAuthClient } from "@/lib/auth/auth-client";
-import { Mail, Trash2 } from "lucide-react";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
 
 interface DeleteAccountButtonProps {
 	authUrl: string;

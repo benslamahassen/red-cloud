@@ -1,5 +1,7 @@
 "use client";
 
+import { UserCircle } from "lucide-react";
+
 import { LogoutButton } from "@/app/components/navigation/sign-out-button";
 import {
 	Avatar,
@@ -22,7 +24,6 @@ import {
 	getUserInitials,
 } from "@/lib/utils/user-utils";
 import type { AppContext } from "@/types/app";
-import { UserCircle } from "lucide-react";
 
 interface UserMenuProps {
 	ctx: AppContext;

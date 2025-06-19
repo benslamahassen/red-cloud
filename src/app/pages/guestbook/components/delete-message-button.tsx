@@ -1,10 +1,11 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
-import { deleteGuestbookMessage } from "@/app/pages/guestbook/functions";
 import { TrashIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+
+import { Button } from "@/app/components/ui/button";
+import { deleteGuestbookMessage } from "@/app/pages/guestbook/functions";
 
 interface DeleteMessageButtonProps {
 	messageId: number;
@@ -26,7 +27,7 @@ export function DeleteMessageButton({ messageId }: DeleteMessageButtonProps) {
 				} else {
 					toast.error(result.error || "Failed to delete message");
 				}
-			} catch (error) {
+			} catch {
 				toast.error("An unexpected error occurred");
 			} finally {
 				setShowConfirm(false);

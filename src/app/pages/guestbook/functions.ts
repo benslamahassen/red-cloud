@@ -1,6 +1,11 @@
 "use server";
 
 import { env } from "cloudflare:workers";
+
+import { eq } from "drizzle-orm";
+import { renderRealtimeClients } from "rwsdk/realtime/worker";
+import { requestInfo } from "rwsdk/worker";
+
 import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
 import { guestbook_message } from "@/db/schema/guestbook-schema";
@@ -8,9 +13,6 @@ import {
 	completeOnboardingSchema,
 	createMessageSchema,
 } from "@/lib/validators/guestbook";
-import { eq } from "drizzle-orm";
-import { renderRealtimeClients } from "rwsdk/realtime/worker";
-import { requestInfo } from "rwsdk/worker";
 
 export async function createGuestbookMessage(data: {
 	name: string;
@@ -51,7 +53,6 @@ export async function createGuestbookMessage(data: {
 			.returning();
 
 		await renderRealtimeClients({
-			// @ts-expect-error - rwsdk / alchemy type mismatch
 			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
 			key: "/guestbook",
 		});
@@ -61,7 +62,7 @@ export async function createGuestbookMessage(data: {
 			message: "Message posted successfully!",
 			data: newMessage,
 		};
-	} catch (error) {
+	} catch (_error) {
 		return {
 			success: false,
 			error: "Failed to post message. Please try again.",
@@ -110,7 +111,6 @@ export async function deleteGuestbookMessage(messageId: number) {
 
 		// Trigger realtime update for all guestbook clients
 		await renderRealtimeClients({
-			// @ts-expect-error - rwsdk / alchemy type mismatch
 			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
 			key: "/guestbook",
 		});
@@ -119,7 +119,7 @@ export async function deleteGuestbookMessage(messageId: number) {
 			success: true,
 			message: "Message deleted successfully",
 		};
-	} catch (error) {
+	} catch {
 		return {
 			success: false,
 			error: "Failed to delete message. Please try again.",
@@ -127,9 +127,9 @@ export async function deleteGuestbookMessage(messageId: number) {
 	}
 }
 
-export async function completeOnboarding(formData: FormData) {
+export async function completeOnboarding(data: { name: string }) {
 	try {
-		const { ctx, request } = requestInfo;
+		const { ctx } = requestInfo;
 
 		if (!ctx.user) {
 			return {
@@ -138,7 +138,7 @@ export async function completeOnboarding(formData: FormData) {
 			};
 		}
 
-		const name = formData.get("name") as string;
+		const name = data.name;
 
 		// Validate input using shared schema
 		const validation = completeOnboardingSchema.safeParse({
@@ -162,7 +162,7 @@ export async function completeOnboarding(formData: FormData) {
 			.where(eq(user.id, ctx.user.id));
 
 		// Fetch updated user data
-		const [updatedUser] = await db
+		const [_updatedUser] = await db
 			.select()
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
@@ -172,7 +172,7 @@ export async function completeOnboarding(formData: FormData) {
 			success: true,
 			message: "Profile completed successfully!",
 		};
-	} catch (error) {
+	} catch {
 		return {
 			success: false,
 			error: "Failed to complete onboarding. Please try again.",

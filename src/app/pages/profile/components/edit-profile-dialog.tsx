@@ -1,5 +1,9 @@
 "use client";
 
+import { Pencil, Trash2, Upload } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { toast } from "sonner";
+
 import { Button } from "@/app/components/ui/button";
 import {
 	Dialog,
@@ -10,10 +14,6 @@ import {
 } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Pencil, Trash2, Upload } from "lucide-react";
-import { useRef, useState, useTransition } from "react";
-import { toast } from "sonner";
-
 import {
 	removeAvatar,
 	updateProfile,
@@ -43,11 +43,14 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		const form = e.currentTarget;
-		const formDataObj = new FormData(form);
+		// Use plain object instead of FormData
+		// since rwsdk realtime client doesn't work with FormData
+		const data = {
+			name: formData.name,
+		};
 
 		startTransition(async () => {
-			const result = await updateProfile(formDataObj);
+			const result = await updateProfile(data);
 
 			if (result.success) {
 				toast.success(result.message);
@@ -65,7 +68,7 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 		});
 	};
 
-	const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
@@ -80,19 +83,41 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 			return;
 		}
 
-		const formData = new FormData();
-		formData.append("file", file);
+		try {
+			// Convert File to base64 for rwsdk compatibility (JSON serializable)
+			const fileBase64 = await new Promise<string>((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => {
+					const result = reader.result as string;
+					// Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+					const base64 = result.split(",")[1];
+					resolve(base64);
+				};
+				reader.onerror = reject;
+				reader.readAsDataURL(file);
+			});
 
-		startTransition(async () => {
-			const result = await uploadAvatar(formData);
+			const data = {
+				fileBase64,
+				fileName: file.name,
+				fileType: file.type,
+				fileSize: file.size,
+			};
 
-			if (result.success) {
-				toast.success(result.message);
-				window.location.reload();
-			} else {
-				toast.error(result.error);
-			}
-		});
+			startTransition(async () => {
+				const result = await uploadAvatar(data);
+
+				if (result.success) {
+					toast.success(result.message);
+					window.location.reload();
+				} else {
+					toast.error(result.error);
+				}
+			});
+		} catch (error) {
+			console.error("File processing error:", error);
+			toast.error("Failed to process file");
+		}
 
 		// Reset file input
 		if (fileInputRef.current) {

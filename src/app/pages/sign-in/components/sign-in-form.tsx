@@ -1,5 +1,7 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
+
 import { Button } from "@/app/components/ui/button";
 import {
 	Form,
@@ -17,7 +19,6 @@ import {
 import { useSignInForm } from "@/app/hooks/use-sign-in-form";
 import { SocialSignInButton } from "@/app/pages/sign-in/components/social-sign-in-button";
 import { SIGN_IN_FORM, SOCIAL_PROVIDERS } from "@/lib/utils/constants";
-import { ExternalLink } from "lucide-react";
 
 interface SignInFormProps {
 	authUrl: string;

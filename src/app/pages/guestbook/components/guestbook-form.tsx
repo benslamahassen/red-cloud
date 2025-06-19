@@ -1,12 +1,11 @@
 "use client";
 
+import { useEffect, useState, useTransition } from "react";
+import type { RequestInfo } from "rwsdk/worker";
+import { toast } from "sonner";
+
 import { Button } from "@/app/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/app/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -25,9 +24,6 @@ import {
 	createGuestbookMessage,
 	getCountriesServer,
 } from "@/app/pages/guestbook/functions";
-import { useEffect, useState, useTransition } from "react";
-import type { RequestInfo } from "rwsdk/worker";
-import { toast } from "sonner";
 
 interface GuestbookFormProps {
 	user?: RequestInfo["ctx"]["user"];
@@ -55,7 +51,7 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 					setCountries([]);
 					// Only show error if user tries to interact with the select
 				}
-			} catch (error) {
+			} catch (_error) {
 				setCountries([]);
 				// Silently fail - user can still submit without country
 			}
@@ -71,6 +67,7 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 		e.preventDefault();
 
 		// Use plain object instead of FormData
+		// since rwsdk realtime client doesn't work with FormData
 		const data = {
 			name: currentUser?.name || formData.name,
 			message: formData.message,

@@ -1,7 +1,8 @@
 "use client";
 
-import { ThemeProvider } from "@/app/components/navigation/theme-provider";
 import type { ReactNode } from "react";
+
+import { ThemeProvider } from "@/app/components/navigation/theme-provider";
 
 interface ClientProvidersProps {
 	children: ReactNode;

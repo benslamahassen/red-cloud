@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { Button } from "@/app/components/ui/button";
 import {
 	Dialog,
@@ -11,7 +13,6 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { completeOnboarding } from "@/app/pages/guestbook/functions";
-import { useState } from "react";
 
 interface OnboardingModalProps {
 	isOpen: boolean;
@@ -35,11 +36,13 @@ export function OnboardingModal({ isOpen, userEmail }: OnboardingModalProps) {
 		setError("");
 
 		try {
-			// Create FormData object as expected by the server function
-			const formData = new FormData();
-			formData.set("name", name.trim());
+			// Use plain object instead of FormData
+			// since rwsdk realtime client doesn't work with FormData
+			const data = {
+				name: name.trim(),
+			};
 
-			const result = await completeOnboarding(formData);
+			const result = await completeOnboarding(data);
 
 			if (result.success) {
 				// Trigger session refresh event for other components
@@ -51,7 +54,7 @@ export function OnboardingModal({ isOpen, userEmail }: OnboardingModalProps) {
 			} else {
 				setError(result.error || "Failed to update profile");
 			}
-		} catch (err) {
+		} catch (_err) {
 			setError("An unexpected error occurred");
 		} finally {
 			setIsSubmitting(false);
