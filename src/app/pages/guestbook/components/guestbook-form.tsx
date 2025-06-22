@@ -84,8 +84,7 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 					// Reset form
 					setFormData({ name: "", message: "", country: "" });
 					setErrors({});
-					// Refresh the page to show new message
-					window.location.reload();
+					// Realtime update will be triggered automatically by server function
 				} else {
 					if (result.details) {
 						setErrors(result.details);

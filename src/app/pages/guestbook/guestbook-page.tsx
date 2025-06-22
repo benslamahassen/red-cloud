@@ -1,36 +1,8 @@
-import { desc } from "drizzle-orm";
 import type { RequestInfo } from "rwsdk/worker";
 
 import { GuestbookForm } from "@/app/pages/guestbook/components/guestbook-form";
 import { GuestbookList } from "@/app/pages/guestbook/components/guestbook-list";
-import { db } from "@/db";
-import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
-import { guestbook_message } from "@/db/schema/guestbook-schema";
-
-// Server function to get all guestbook messages
-async function getAllGuestbookMessages(): Promise<{
-	success: boolean;
-	messages?: GuestBookMessage[];
-	error?: string;
-}> {
-	try {
-		const messages = await db
-			.select()
-			.from(guestbook_message)
-			.orderBy(desc(guestbook_message.createdAt))
-			.limit(100); // Limit to prevent performance issues
-
-		return {
-			success: true,
-			messages,
-		};
-	} catch {
-		return {
-			success: false,
-			error: "Failed to load messages",
-		};
-	}
-}
+import { getAllGuestbookMessages } from "@/app/pages/guestbook/functions";
 
 // Main Guestbook Page Component
 export async function GuestbookPage({ ctx }: RequestInfo) {
@@ -52,7 +24,7 @@ export async function GuestbookPage({ ctx }: RequestInfo) {
 				{/* Guestbook Form */}
 				<GuestbookForm user={ctx?.user} />
 
-				{/* Messages List */}
+				{/* Messages List - Server component that will re-render on realtime updates */}
 				<GuestbookList
 					messagesResult={messagesResult}
 					currentUser={ctx?.user}

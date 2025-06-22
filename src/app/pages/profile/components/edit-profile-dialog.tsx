@@ -54,8 +54,8 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 
 			if (result.success) {
 				toast.success(result.message);
-				// Refresh the page to get updated user data
-				window.location.reload();
+				setIsOpen(false);
+				// Realtime update will be triggered automatically by server function
 			} else {
 				toast.error(result.error);
 
@@ -109,7 +109,8 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 
 				if (result.success) {
 					toast.success(result.message);
-					window.location.reload();
+					setIsOpen(false);
+					// Realtime update will be triggered automatically by server function
 				} else {
 					toast.error(result.error);
 				}
@@ -135,7 +136,8 @@ export function EditProfileDialog({ user }: EditProfileDialogProps) {
 
 			if (result.success) {
 				toast.success(result.message);
-				window.location.reload();
+				setIsOpen(false);
+				// Realtime update will be triggered automatically by server function
 			} else {
 				toast.error(result.error);
 			}

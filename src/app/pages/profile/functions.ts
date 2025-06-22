@@ -3,6 +3,7 @@
 import { env } from "cloudflare:workers";
 
 import { eq } from "drizzle-orm";
+import { renderRealtimeClients } from "rwsdk/realtime/worker";
 import { requestInfo } from "rwsdk/worker";
 
 import { db } from "@/db";
@@ -71,6 +72,12 @@ export async function updateProfile(data: { name: string }) {
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
+
+		// Trigger realtime updates for profile page
+		await renderRealtimeClients({
+			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+			key: "/profile",
+		});
 
 		// Return structured success response
 		return {
@@ -164,6 +171,12 @@ export async function uploadAvatar(data: {
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
 
+		// Trigger realtime updates for profile page
+		await renderRealtimeClients({
+			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+			key: "/profile",
+		});
+
 		// Return structured success response
 		return {
 			success: true,
@@ -237,6 +250,12 @@ export async function removeAvatar() {
 			.from(user)
 			.where(eq(user.id, ctx.user.id))
 			.limit(1);
+
+		// Trigger realtime updates for profile page
+		await renderRealtimeClients({
+			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+			key: "/profile",
+		});
 
 		// Return structured success response
 		return {

@@ -2,17 +2,42 @@
 
 import { env } from "cloudflare:workers";
 
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { renderRealtimeClients } from "rwsdk/realtime/worker";
 import { requestInfo } from "rwsdk/worker";
 
 import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
+import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
 import { guestbook_message } from "@/db/schema/guestbook-schema";
 import {
 	completeOnboardingSchema,
 	createMessageSchema,
 } from "@/lib/validators/guestbook";
+
+export async function getAllGuestbookMessages(): Promise<{
+	success: boolean;
+	messages?: GuestBookMessage[];
+	error?: string;
+}> {
+	try {
+		const messages = await db
+			.select()
+			.from(guestbook_message)
+			.orderBy(desc(guestbook_message.createdAt))
+			.limit(100); // Limit to prevent performance issues
+
+		return {
+			success: true,
+			messages,
+		};
+	} catch {
+		return {
+			success: false,
+			error: "Failed to load messages",
+		};
+	}
+}
 
 export async function createGuestbookMessage(data: {
 	name: string;
@@ -52,10 +77,19 @@ export async function createGuestbookMessage(data: {
 			})
 			.returning();
 
+		// Trigger realtime updates for all guestbook clients
 		await renderRealtimeClients({
 			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
 			key: "/guestbook",
 		});
+
+		// Optional: Also trigger for user-specific updates if authenticated
+		if (ctx.user?.id) {
+			await renderRealtimeClients({
+				durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+				key: `/user/${ctx.user.id}`,
+			});
+		}
 
 		return {
 			success: true,
@@ -109,11 +143,19 @@ export async function deleteGuestbookMessage(messageId: number) {
 			.delete(guestbook_message)
 			.where(eq(guestbook_message.id, messageId));
 
-		// Trigger realtime update for all guestbook clients
+		// Trigger realtime updates for all guestbook clients
 		await renderRealtimeClients({
 			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
 			key: "/guestbook",
 		});
+
+		// Optional: Also trigger for user-specific updates if authenticated
+		if (ctx.user?.id) {
+			await renderRealtimeClients({
+				durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
+				key: `/user/${ctx.user.id}`,
+			});
+		}
 
 		return {
 			success: true,
