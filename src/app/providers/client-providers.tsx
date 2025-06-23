@@ -2,8 +2,8 @@
 
 import type { ReactNode } from "react";
 
-import { ThemeProvider } from "@/app/components/navigation/theme-provider";
 import { Toaster } from "@/app/components/ui/sonner";
+import { ThemeProvider } from "@/app/providers/theme-provider";
 
 interface ClientProvidersProps {
 	children: ReactNode;
