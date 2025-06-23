@@ -22,7 +22,7 @@ import {
 } from "@/app/components/ui/select";
 import {
 	createGuestbookMessage,
-	getCountriesServer,
+	getCountries,
 } from "@/app/pages/guestbook/functions";
 
 interface GuestbookFormProps {
@@ -43,7 +43,7 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 	useEffect(() => {
 		const fetchCountries = async () => {
 			try {
-				const result = await getCountriesServer();
+				const result = await getCountries();
 
 				if (result.success && result.countries) {
 					setCountries(result.countries);

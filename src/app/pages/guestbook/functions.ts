@@ -215,39 +215,91 @@ export async function completeOnboarding(data: { name: string }) {
 	}
 }
 
-// Server function to fetch countries
-export async function getCountriesServer(): Promise<{
+// Server function to fetch countries with timeout and retry logic
+export async function getCountries(): Promise<{
 	success: boolean;
 	countries?: string[];
 	error?: string;
 }> {
-	try {
-		const response = await fetch(
-			"https://restcountries.com/v3.1/all?fields=name",
-		);
+	const TIMEOUT_MS = 5000; // 5 second timeout
+	const MAX_RETRIES = 2;
 
-		if (!response.ok) {
-			throw new Error(`HTTP error! status: ${response.status}`);
+	const fetchWithTimeout = async (url: string, timeoutMs: number) => {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+		try {
+			const response = await fetch(url, {
+				signal: controller.signal,
+				headers: {
+					Accept: "application/json",
+					"User-Agent": "RedCloud-App/1.0",
+				},
+			});
+			clearTimeout(timeoutId);
+			return response;
+		} catch (error) {
+			clearTimeout(timeoutId);
+			throw error;
 		}
+	};
 
-		const data: Array<{ name: { common: string } }> = await response.json();
+	for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+		try {
+			const response = await fetchWithTimeout(
+				"https://restcountries.com/v3.1/all?fields=name",
+				TIMEOUT_MS,
+			);
 
-		// Extract country names and sort alphabetically
-		const countryNames = data
-			.map((country) => country.name.common)
-			.filter(Boolean) // Remove any undefined/null values
-			.sort((a, b) => a.localeCompare(b));
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
 
-		return {
-			success: true,
-			countries: countryNames,
-		};
-	} catch (error) {
-		console.error("Failed to fetch countries:", error);
-		return {
-			success: false,
-			error:
-				error instanceof Error ? error.message : "Failed to fetch countries",
-		};
+			const data: Array<{ name: { common: string } }> = await response.json();
+
+			// Validate data structure
+			if (!Array.isArray(data)) {
+				throw new Error("Invalid response format");
+			}
+
+			// Extract country names and sort alphabetically
+			const countryNames = data
+				.map((country) => country?.name?.common)
+				.filter(
+					(name): name is string => typeof name === "string" && name.length > 0,
+				)
+				.sort((a, b) => a.localeCompare(b));
+
+			if (countryNames.length === 0) {
+				throw new Error("No valid countries found in response");
+			}
+
+			return {
+				success: true,
+				countries: countryNames,
+			};
+		} catch (error) {
+			console.warn(`Countries fetch attempt ${attempt} failed:`, error);
+
+			// If this is the last attempt, return error
+			if (attempt === MAX_RETRIES) {
+				return {
+					success: false,
+					error:
+						error instanceof Error
+							? `Failed to fetch countries after ${MAX_RETRIES} attempts: ${error.message}`
+							: "Failed to fetch countries after multiple attempts",
+				};
+			}
+
+			// Wait before retry (exponential backoff)
+			await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+		}
 	}
+
+	// This should never be reached, but TypeScript requires it
+	return {
+		success: false,
+		error: "Unexpected error in countries fetch",
+	};
 }
