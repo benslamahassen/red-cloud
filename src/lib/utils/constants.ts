@@ -1,3 +1,6 @@
+export const EMAIL_FROM_NAME = "Red Cloud";
+export const EMAIL_FROM_ADDRESS = "noreply@better-cloud.dev";
+
 // Cache refresh time for session data
 export const SESSION_CACHE_REFRESH_MS = 30_000; // 30 seconds
 

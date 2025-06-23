@@ -4,7 +4,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from "@/app/components/ui/avatar";
-import { getAvatarUrl } from "@/lib/utils/user-utils";
+import { getAvatarUrl } from "@/lib/utils/user";
 
 // Define ProfileInfoProps interface
 interface ProfileInfoProps {

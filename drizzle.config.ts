@@ -1,5 +1,6 @@
 import { defineConfig } from "drizzle-kit";
-import { getLocalSQLiteDBPath } from "./src/lib/utils/db-utils";
+
+import { getLocalSQLiteDBPath } from "./src/lib/utils/db";
 
 const isProd = process.env.NODE_ENV === "production";
 

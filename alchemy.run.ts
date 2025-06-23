@@ -43,6 +43,7 @@ export const site = await Website("site", {
 		main: "src/worker.tsx",
 	},
 	compatibilityFlags: ["nodejs_compat"],
+	compatibilityDate: "2025-06-17",
 	observability: {
 		enabled: true,
 	},
@@ -52,7 +53,6 @@ export const site = await Website("site", {
 		REALTIME_DURABLE_OBJECT: realtimeDurableObject,
 		BETTER_AUTH_SECRET: alchemy.secret(process.env.BETTER_AUTH_SECRET),
 		RESEND_API_KEY: alchemy.secret(process.env.RESEND_API_KEY),
-		RESEND_FROM_EMAIL: alchemy.secret(process.env.RESEND_FROM_EMAIL),
 		GOOGLE_CLIENT_ID: alchemy.secret(process.env.GOOGLE_CLIENT_ID),
 		GOOGLE_CLIENT_SECRET: alchemy.secret(process.env.GOOGLE_CLIENT_SECRET),
 		GITHUB_CLIENT_ID: alchemy.secret(process.env.GITHUB_CLIENT_ID),
@@ -60,7 +60,6 @@ export const site = await Website("site", {
 		CLOUDFLARE_ACCOUNT_ID: alchemy.secret(process.env.CLOUDFLARE_ACCOUNT_ID),
 		CLOUDFLARE_DATABASE_ID: alchemy.secret(process.env.CLOUDFLARE_DATABASE_ID),
 		CLOUDFLARE_API_TOKEN: alchemy.secret(process.env.CLOUDFLARE_API_TOKEN),
-		APP_NAME: APP_NAME,
 	},
 });
 

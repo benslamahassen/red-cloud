@@ -22,7 +22,7 @@ import {
 	getAvatarUrl,
 	getUserDisplayName,
 	getUserInitials,
-} from "@/lib/utils/user-utils";
+} from "@/lib/utils/user";
 import type { AppContext } from "@/types/app";
 
 interface UserMenuProps {
