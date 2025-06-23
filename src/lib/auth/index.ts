@@ -4,12 +4,13 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP } from "better-auth/plugins";
 import { Resend } from "resend";
+import { renderToString } from "rwsdk/worker";
 
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import {
-	deleteAccountEmail,
-	verificationCodeEmail,
+	DeleteAccountEmail,
+	VerificationCodeEmail,
 } from "@/lib/auth/email-templates";
 
 export const auth = betterAuth({
@@ -30,7 +31,7 @@ export const auth = betterAuth({
 					from: `${env.APP_NAME} <${env.RESEND_FROM_EMAIL}>`,
 					to: user.email,
 					subject: "Confirm Account Deletion",
-					html: deleteAccountEmail(url, token),
+					html: await renderToString(DeleteAccountEmail({ url, token })),
 				});
 			},
 		},
@@ -59,7 +60,7 @@ export const auth = betterAuth({
 						from: `${env.APP_NAME} <${env.RESEND_FROM_EMAIL}>`,
 						to: email,
 						subject: "Your Verification Code",
-						html: verificationCodeEmail(otp),
+						html: await renderToString(VerificationCodeEmail({ otp })),
 					});
 				}
 			},
