@@ -10,6 +10,7 @@ import { db } from "@/db";
 import { user } from "@/db/schema/auth-schema";
 import type { GuestBookMessage } from "@/db/schema/guestbook-schema";
 import { guestbook_message } from "@/db/schema/guestbook-schema";
+import { COUNTRIES } from "@/lib/utils/constants";
 import {
 	completeOnboardingSchema,
 	createMessageSchema,
@@ -281,14 +282,12 @@ export async function getCountries(): Promise<{
 		} catch (error) {
 			console.warn(`Countries fetch attempt ${attempt} failed:`, error);
 
-			// If this is the last attempt, return error
+			// If this is the last attempt, fallback to static list
 			if (attempt === MAX_RETRIES) {
+				console.info("Using fallback country list after API failures");
 				return {
-					success: false,
-					error:
-						error instanceof Error
-							? `Failed to fetch countries after ${MAX_RETRIES} attempts: ${error.message}`
-							: "Failed to fetch countries after multiple attempts",
+					success: true,
+					countries: [...COUNTRIES], // Use static fallback list
 				};
 			}
 
@@ -297,9 +296,10 @@ export async function getCountries(): Promise<{
 		}
 	}
 
-	// This should never be reached, but TypeScript requires it
+	// This should never be reached, but fallback to static list as safety
+	console.info("Using fallback country list as safety measure");
 	return {
-		success: false,
-		error: "Unexpected error in countries fetch",
+		success: true,
+		countries: [...COUNTRIES],
 	};
 }
