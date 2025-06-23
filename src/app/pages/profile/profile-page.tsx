@@ -14,17 +14,9 @@ export async function ProfilePage({ ctx, request }: RequestInfo) {
 		throw new Error("User not authenticated");
 	}
 
-	// Fetch user profile and session data server-side with fresh data
-	const [userProfile, currentSession, activeSessions] = await Promise.all([
+	// Fetch user profile and session list - use session data from middleware
+	const [userProfile, activeSessions] = await Promise.all([
 		getUserProfile(ctx.user.id as string),
-		auth.api
-			.getSession({
-				headers: request.headers,
-				query: {
-					disableCookieCache: true,
-				},
-			})
-			.catch(() => null),
 		auth.api
 			.listSessions({
 				headers: request.headers,
@@ -59,7 +51,11 @@ export async function ProfilePage({ ctx, request }: RequestInfo) {
 						{/* Active Sessions */}
 						<SessionManager
 							authUrl={authUrl}
-							currentSession={currentSession}
+							currentSession={
+								ctx.session && ctx.user
+									? { session: ctx.session, user: ctx.user }
+									: null
+							}
 							activeSessions={
 								Array.isArray(activeSessions) ? activeSessions : []
 							}

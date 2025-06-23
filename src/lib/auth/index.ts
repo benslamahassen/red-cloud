@@ -20,10 +20,6 @@ export const auth = betterAuth({
 	secret: env.BETTER_AUTH_SECRET,
 	session: {
 		storeSessionInDatabase: true,
-		cookieCache: {
-			enabled: true,
-			maxAge: 5 * 60,
-		},
 	},
 	user: {
 		deleteUser: {

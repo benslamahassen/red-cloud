@@ -203,13 +203,6 @@ export async function completeOnboarding(data: { name: string }) {
 			})
 			.where(eq(user.id, ctx.user.id));
 
-		// Fetch updated user data
-		const [_updatedUser] = await db
-			.select()
-			.from(user)
-			.where(eq(user.id, ctx.user.id))
-			.limit(1);
-
 		return {
 			success: true,
 			message: "Profile completed successfully!",
