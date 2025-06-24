@@ -1,4 +1,4 @@
-# Fullstack cloudflare example
+# Red-Cloud (Fullstack RedwoodJS Cloudflare Example)
 
 This repo contain a fullstack example to build on Cloudflare with the following stack:
 
@@ -21,7 +21,8 @@ All the required resources are configured via Alchmey in alchemy.run.ts
 
 ## Credits
 
-- **MJ Meyer**: this example was heavily inspired by his [repo](https://github.com/mj-meyer/rwsdk-better-auth-drizzle), adding little things here and there, mainly Alchemy as IaC.
+- **Nick Balestra-Foster**: This example is a fork of Nick's [repo](https://github.com/nickbalestra/fullstack-cf-example) which provided a great foundation to tweak and build on top of.
+- **MJ Meyer**: Nick's example was heavily inspired by MJ's [repo](https://github.com/mj-meyer/rwsdk-better-auth-drizzle), adding little things here and there, mainly Alchemy as IaC.
   - Check /types/env.d.ts to see how our IaC help defining our types (no need to generate types with Wrangler)
   - Check ./alchemy.run.ts to see how the whole infra is defined as code via Alchemy
 
@@ -114,15 +115,14 @@ Everytime you change anything to the infra definition and run `infra:up` your wh
 
 This project has evolved significantly from a basic implementation to a more production-ready codebase. Here are the major architectural improvements:
 
-### 🏗️ Session Management Overhaul
+### 🏗️ Session Management
 
-We've simplified and optimized the session management system to use only better-auth's native capabilities:
+We've optimized the session management system to make the most of better-auth's native server-side APIs and db-first session storage:
 
-- **Native Better-Auth Integration**: Removed custom session management in favor of better-auth's built-in database persistence
 - **Server-Side Session Fetching**: Uses `auth.api.getSession()` with `disableCookieCache: true` for fresh session data
 - **SSR Optimization**: Pre-fetches session data on the server and passes to client components as props
 - **Efficient Client Actions**: Uses `authClient.signOut()` and `authClient.revokeSession()` for session termination
-- **No Custom Caching**: Relies on better-auth's native cookie cache with database fallback
+- **No Session Caching**: We want to maintain fresh session data at all times to align with our realtime functionality
 
 **Key Files:**
 - `src/middleware/app-middleware.ts` - Server-side session loading using better-auth APIs
@@ -162,14 +162,14 @@ src/app/pages/
 ├── guestbook/
 │   ├── guestbook-page.tsx   # page component
 │   ├── functions.ts         # server functions
-│   └── _components/         # specialized components
+│   └── components/          # specialized components
 ├── profile/
 │   ├── profile-page.tsx
 │   ├── functions.ts
-│   └── _components/
+│   └── components/
 └── sign-in/
     ├── sign-in-page.tsx
-    └── _components/
+    └── components/
 ```
 
 **Library Organization:**

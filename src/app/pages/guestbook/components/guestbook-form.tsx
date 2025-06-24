@@ -39,21 +39,29 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 	});
 	const [errors, setErrors] = useState<Record<string, string[]>>({});
 
-	// Fetch countries using server function - silently in background
+	// Fetch countries using server function - with enhanced logging
 	useEffect(() => {
 		const fetchCountries = async () => {
+			console.log("[GuestbookForm] Starting country fetch...");
 			try {
 				const result = await getCountries();
+				console.log("[GuestbookForm] getCountries result:", {
+					success: result.success,
+					countriesCount: result.countries?.length || 0,
+					error: result.error,
+					debug: result.debug,
+				});
 
 				if (result.success && result.countries) {
 					setCountries(result.countries);
+					console.log(`[GuestbookForm] Successfully set ${result.countries.length} countries`);
 				} else {
 					setCountries([]);
-					// Only show error if user tries to interact with the select
+					console.warn("[GuestbookForm] No countries received, setting empty array");
 				}
-			} catch (_error) {
+			} catch (error) {
+				console.error("[GuestbookForm] Error fetching countries:", error);
 				setCountries([]);
-				// Silently fail - user can still submit without country
 			}
 		};
 

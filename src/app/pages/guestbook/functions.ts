@@ -84,14 +84,6 @@ export async function createGuestbookMessage(data: {
 			key: "/guestbook",
 		});
 
-		// Optional: Also trigger for user-specific updates if authenticated
-		if (ctx.user?.id) {
-			await renderRealtimeClients({
-				durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
-				key: `/user/${ctx.user.id}`,
-			});
-		}
-
 		return {
 			success: true,
 			message: "Message posted successfully!",
@@ -149,14 +141,6 @@ export async function deleteGuestbookMessage(messageId: number) {
 			durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
 			key: "/guestbook",
 		});
-
-		// Optional: Also trigger for user-specific updates if authenticated
-		if (ctx.user?.id) {
-			await renderRealtimeClients({
-				durableObjectNamespace: env.REALTIME_DURABLE_OBJECT,
-				key: `/user/${ctx.user.id}`,
-			});
-		}
 
 		return {
 			success: true,
@@ -221,9 +205,21 @@ export async function getCountries(): Promise<{
 	success: boolean;
 	countries?: string[];
 	error?: string;
+	debug?: {
+		apiAttempted: boolean;
+		apiError?: string;
+		fallbackUsed: boolean;
+		environment: string;
+	};
 }> {
 	const TIMEOUT_MS = 5000; // 5 second timeout
 	const MAX_RETRIES = 2;
+	const debug = {
+		apiAttempted: false,
+		apiError: undefined as string | undefined,
+		fallbackUsed: false,
+		environment: typeof window !== "undefined" ? "client" : "server",
+	};
 
 	const fetchWithTimeout = async (url: string, timeoutMs: number) => {
 		const controller = new AbortController();
@@ -247,9 +243,18 @@ export async function getCountries(): Promise<{
 
 	for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
 		try {
+			debug.apiAttempted = true;
+			console.log(
+				`[getCountries] Attempt ${attempt}/${MAX_RETRIES} - Fetching from REST Countries API`,
+			);
+
 			const response = await fetchWithTimeout(
 				"https://restcountries.com/v3.1/all?fields=name",
 				TIMEOUT_MS,
+			);
+
+			console.log(
+				`[getCountries] API Response - Status: ${response.status}, OK: ${response.ok}`,
 			);
 
 			if (!response.ok) {
@@ -257,6 +262,9 @@ export async function getCountries(): Promise<{
 			}
 
 			const data: Array<{ name: { common: string } }> = await response.json();
+			console.log(
+				`[getCountries] API Data received - Array length: ${Array.isArray(data) ? data.length : "not array"}`,
+			);
 
 			// Validate data structure
 			if (!Array.isArray(data)) {
@@ -275,31 +283,48 @@ export async function getCountries(): Promise<{
 				throw new Error("No valid countries found in response");
 			}
 
+			console.log(
+				`[getCountries] API Success - ${countryNames.length} countries processed`,
+			);
 			return {
 				success: true,
 				countries: countryNames,
+				debug,
 			};
 		} catch (error) {
-			console.warn(`Countries fetch attempt ${attempt} failed:`, error);
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			debug.apiError = errorMessage;
+			console.warn(`[getCountries] Attempt ${attempt} failed:`, errorMessage);
 
 			// If this is the last attempt, fallback to static list
 			if (attempt === MAX_RETRIES) {
-				console.info("Using fallback country list after API failures");
+				debug.fallbackUsed = true;
+				console.info(
+					`[getCountries] Using fallback country list after API failures. Fallback has ${COUNTRIES.length} countries`,
+				);
 				return {
 					success: true,
 					countries: [...COUNTRIES], // Use static fallback list
+					debug,
 				};
 			}
 
 			// Wait before retry (exponential backoff)
-			await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+			const waitTime = attempt * 1000;
+			console.log(`[getCountries] Waiting ${waitTime}ms before retry...`);
+			await new Promise((resolve) => setTimeout(resolve, waitTime));
 		}
 	}
 
 	// This should never be reached, but fallback to static list as safety
-	console.info("Using fallback country list as safety measure");
+	debug.fallbackUsed = true;
+	console.info(
+		`[getCountries] Using fallback country list as safety measure. Fallback has ${COUNTRIES.length} countries`,
+	);
 	return {
 		success: true,
 		countries: [...COUNTRIES],
+		debug,
 	};
 }
