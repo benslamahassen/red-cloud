@@ -52,10 +52,10 @@ export const auth = betterAuth({
 	plugins: [
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
-				// if (process.env.NODE_ENV === "development") {
-				// 	console.log(`Sending ${type} code to ${email}: ${otp}`);
-				// 	return;
-				// }
+				if (process.env.NODE_ENV === "development") {
+					console.log(`Sending ${type} code to ${email}: ${otp}`);
+					return;
+				}
 				if (type === "sign-in") {
 					await sendEmail(
 						{
