@@ -13,10 +13,10 @@ export const Document: React.FC<{ children: React.ReactNode }> = ({
 				<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 				<link rel="modulepreload" href="/src/client.tsx" />
 				<link rel="stylesheet" href={styles} />
+				<script>import("/src/client.tsx")</script>
 			</head>
 			<body>
 				<div id="root">{children}</div>
-				<script>import("/src/client.tsx")</script>
 			</body>
 		</html>
 	);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { RequestInfo } from "rwsdk/worker";
 import { toast } from "sonner";
 
@@ -20,10 +20,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/app/components/ui/select";
-import {
-	createGuestbookMessage,
-	getCountries,
-} from "@/app/pages/guestbook/functions";
+import { createGuestbookMessage } from "@/app/pages/guestbook/functions";
+import { COUNTRIES } from "@/lib/utils/constants";
 
 interface GuestbookFormProps {
 	user?: RequestInfo["ctx"]["user"];
@@ -31,42 +29,12 @@ interface GuestbookFormProps {
 
 export function GuestbookForm({ user }: GuestbookFormProps) {
 	const [isPending, startTransition] = useTransition();
-	const [countries, setCountries] = useState<string[]>([]);
 	const [formData, setFormData] = useState({
 		name: "",
 		message: "",
 		country: "",
 	});
 	const [errors, setErrors] = useState<Record<string, string[]>>({});
-
-	// Fetch countries using server function - with enhanced logging
-	useEffect(() => {
-		const fetchCountries = async () => {
-			console.log("[GuestbookForm] Starting country fetch...");
-			try {
-				const result = await getCountries();
-				console.log("[GuestbookForm] getCountries result:", {
-					success: result.success,
-					countriesCount: result.countries?.length || 0,
-					error: result.error,
-					debug: result.debug,
-				});
-
-				if (result.success && result.countries) {
-					setCountries(result.countries);
-					console.log(`[GuestbookForm] Successfully set ${result.countries.length} countries`);
-				} else {
-					setCountries([]);
-					console.warn("[GuestbookForm] No countries received, setting empty array");
-				}
-			} catch (error) {
-				console.error("[GuestbookForm] Error fetching countries:", error);
-				setCountries([]);
-			}
-		};
-
-		fetchCountries();
-	}, []);
 
 	// Use user data directly from props - server handles session management
 	const currentUser = user;
@@ -196,7 +164,7 @@ export function GuestbookForm({ user }: GuestbookFormProps) {
 												Clear selection
 											</span>
 										</SelectItem>
-										{countries.map((country) => (
+										{COUNTRIES.map((country) => (
 											<SelectItem key={country} value={country}>
 												{country}
 											</SelectItem>
