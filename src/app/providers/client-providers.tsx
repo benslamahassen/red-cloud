@@ -13,7 +13,7 @@ export function ClientProviders({ children }: ClientProvidersProps) {
 	return (
 		<ThemeProvider defaultTheme="system" storageKey="red-cloud-theme">
 			{children}
-			<Toaster />
+			<Toaster richColors />
 		</ThemeProvider>
 	);
 }
